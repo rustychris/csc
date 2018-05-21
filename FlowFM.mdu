@@ -127,7 +127,7 @@ PavBnd            = 0
 PavIni            = 0
 
 [waves]
-Wavemodelnr       = 0
+Wavemodelnr       = 1
 WaveNikuradse     = 0.01
 Rouwav            = FR84
 Gammax            = 1
@@ -169,7 +169,7 @@ MapFile           =
 MapInterval       = 3600
 RstInterval       = 0
 S1incinterval     =
-WaqInterval       = 0
+WaqInterval       = 1800
 StatsInterval     =
 Writebalancefile  = 0
 TimingsInterval   =
