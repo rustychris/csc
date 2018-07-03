@@ -5,11 +5,14 @@ This should not be needed routinely, but is here to document
 the provenance of the calibratino data in the repository.
 """
 from __future__ import print_function
-
+import logging
 import glob
 import os
 import pandas as pd
 import shutil
+
+cache_dir="../cache"
+
 
 ##
 
@@ -42,6 +45,63 @@ for fn in glob.glob(os.path.join( csc_stations_dir,"wsel","*.csv")):
             df.to_csv(base_fn,index=False,date_format="%Y-%m-%d %H:%M")
         else:
             raise Exception("No match for %s"%base_fn)
+
+
+##
+
+# USGS stations:
+download_period=[np.datetime64("2014-03-01"),
+                 np.datetime64("2014-06-01")]
+from stompy.io.local import usgs_nwis
+
+
+# USGS gauges with Flow and Stage:
+for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
+                                ("FPX","11447650"),  # Sac River at Freeport
+                                ("RYI", "11455350"), # Cache Slough at Ryer Island
+                                ("HWB","11455165"),  # Miner Slough at HWY 84 Bridge
+                                ("SSS","11447850"),  # Steamboat Slough Btw Sac R And Sutter Sl, aka Steamboat Slough nr Walnut
+                                ("SUT","11447830"),  # Sutter Slough at Courtland
+                                ("DWS","11455335"),  # Sacramento R Deep Water Ship Channel Nr Rio Vista
+                                # no physical data until 2015-07:
+                                # ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
+]:
+    ds=usgs_nwis.nwis_dataset(usgs_station,
+                              download_period[0],download_period[1],
+                              [60,65], # Discharge and Stage
+                              days_per_request='M',cache_dir=cache_dir)
+    # nwis_dataset() returns UTC data.  Convert to PST:
+    ds['time'] = ds.time - np.timedelta64(8,'h')
+
+    # Match the names up with existing csv files:
+    df=ds.rename(
+        {'time':'Time',
+         'stream_flow_mean_daily':'Flow',
+         'height_gage':'Stage'}
+    ).to_dataframe()
+
+    df.Stage.to_csv('%s-2014-04-stage.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    df.Flow.to_csv('%s-2014-04-flow.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+
+##
+logging.warning("No timezone adjustments applied down here!  May need to go UTC=>PST")
+
+
+from stompy import utils
+# Fetch a year of stage data for Yolo Bypass near Lisbon.
+# the original file is put in cache_dir, from which
+lis_fn="LIS-stage-WY2014.csv"
+lis_orig_fn=os.path.join(cache_dir,'LIS-WY2014-STAGE_15-MINUTE_DATA_DATA.CSV')
+url="http://wdl.water.ca.gov/waterdatalibrary/docs/Hydstra/docs/B91560/2014/STAGE_15-MINUTE_DATA_DATA.CSV"
+
+# only fetch when necessary.
+if not os.path.exists(lis_fn):
+    if not os.path.exists(lis_orig_fn):
+        utils.download_url(url,lis_orig_fn,log=logging)
+    df=pd.read_csv(lis_orig_fn,skiprows=3,parse_dates=['Time'],infer_datetime_format=True,
+                   names=["Time","Stage","Quality","Comment"])
+    df.to_csv(lis_fn,columns=["Time","Stage"],date_format="%Y-%m-%d %H:%M",index=False)
+
 
 
 

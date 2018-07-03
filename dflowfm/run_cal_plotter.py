@@ -32,21 +32,39 @@ defaults = {
     'point_limit': 500,  # maximum number of points to show in scatter plots, or None for all points
 }
 
+# additional stations:
+# 'SOI', 'SXS', 'RYI', 'HBW', 'SSS', 'SUT', 'DWS', 'LIB', 'LIS',
+# 'FPX', 'SRV'
+
+
+# additional cross-sections:
+#   RioVista Freeport RYI HWB SSS SUT GES
+
 stations = [
-    ('DOP',{'var':'stage', 'units':'m',
-            'obs_file':'HecDssExcel9146174433491355875_DOP_wsel.csv'}),
-    ('CCS',{'var':'stage', 'units':'m',
-            'obs_file':'HecDssExcel1634846602065331917_CCS_wsel.csv'}),
-    ('HS1',{'var':'stage', 'units':'m',
-            'obs_file':'HecDssExcel41820602247344004_HS1_wsel.csv'}),
-    ('HAAS',{'var':'stage', 'units':'m',
-             'obs_file':'HecDssExcel8019730502736234932_HAAS_wsel.csv'}),
-    ('GES',{'var':'stage', 'units':'ft',
-            'obs_file':'GES_STAGE_april2014.csv'}),
-    ('LN2',{'var':'stage', 'units':'m',
-            'obs_file':'HecDssExcel6060592544570966047_LN2_wsel.csv'}),
-    ('SG1',{'var':'stage', 'units':'m',
-            'obs_file':'HecDssExcel7247236844972400088_SG1_wsel.csv'}),
+    # ('DOP',{'var':'stage', 'units':'m',
+    #         'obs_file':'HecDssExcel9146174433491355875_DOP_wsel.csv'}),
+    # ('CCS',{'var':'stage', 'units':'m',
+    #         'obs_file':'HecDssExcel1634846602065331917_CCS_wsel.csv'}),
+    # ('HS1',{'var':'stage', 'units':'m',
+    #         'obs_file':'HecDssExcel41820602247344004_HS1_wsel.csv'}),
+    # ('HAAS',{'var':'stage', 'units':'m',
+    #          'obs_file':'HecDssExcel8019730502736234932_HAAS_wsel.csv'}),
+    # ('GES',{'var':'stage', 'units':'ft',
+    #         'obs_file':'GES_STAGE_april2014.csv'}),
+    # ('LN2',{'var':'stage', 'units':'m',
+    #         'obs_file':'HecDssExcel6060592544570966047_LN2_wsel.csv'}),
+    # ('SG1',{'var':'stage', 'units':'m',
+    #         'obs_file':'HecDssExcel7247236844972400088_SG1_wsel.csv'}),
+
+    # These all need some TLC to fix units and time zone
+    ('DWS',{'var':'stage', 'units':'ft', 'obs_file':'DWS-2014-04-stage.csv'}),
+    ('FPX',{'var':'stage', 'units':'ft', 'obs_file':'FPX-2014-04-stage.csv'}),
+    ('HWB',{'var':'stage', 'units':'ft', 'obs_file':'HWB-2014-04-stage.csv'}),
+    ('LIS',{'var':'stage', 'units':'ft', 'obs_file':'LIS-stage-WY2014.csv'}),
+    ('RYI',{'var':'stage', 'units':'ft', 'obs_file':'RYI-2014-04-stage.csv'}),
+    ('SRV',{'var':'stage', 'units':'ft', 'obs_file':'SRV-2014-04-stage.csv'}),
+    ('SSS',{'var':'stage', 'units':'ft', 'obs_file':'SSS-2014-04-stage.csv'}),
+    ('SUT',{'var':'stage', 'units':'ft', 'obs_file':'SUT-2014-04-stage.csv'}),
 
     # No data until July 7, 2014 according to the csv in calibration_data
     # ('UL1',{'var':'stage', 'units':'m',
