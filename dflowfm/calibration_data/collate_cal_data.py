@@ -6,6 +6,7 @@ the provenance of the calibratino data in the repository.
 """
 from __future__ import print_function
 import logging
+import numpy as np
 import glob
 import os
 import pandas as pd
@@ -63,6 +64,7 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("SSS","11447850"),  # Steamboat Slough Btw Sac R And Sutter Sl, aka Steamboat Slough nr Walnut
                                 ("SUT","11447830"),  # Sutter Slough at Courtland
                                 ("DWS","11455335"),  # Sacramento R Deep Water Ship Channel Nr Rio Vista
+                                ("GES","11447905"),  # Sacramento R below Georgiana Slough
                                 # no physical data until 2015-07:
                                 # ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
 ]:
@@ -84,6 +86,7 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
     df.Flow.to_csv('%s-2014-04-flow.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
 
 ##
+
 logging.warning("No timezone adjustments applied down here!  May need to go UTC=>PST")
 
 
@@ -101,6 +104,22 @@ if not os.path.exists(lis_fn):
     df=pd.read_csv(lis_orig_fn,skiprows=3,parse_dates=['Time'],infer_datetime_format=True,
                    names=["Time","Stage","Quality","Comment"])
     df.to_csv(lis_fn,columns=["Time","Stage"],date_format="%Y-%m-%d %H:%M",index=False)
+
+
+##
+
+if 0: # Verified that these are the same vertical datum, same timezone
+    # Compare datums between USGS GES, and the CSV already around
+    ges_orig=pd.read_csv('GES_STAGE_april2014.csv',parse_dates=['Time'],infer_datetime_format=True)
+    ges_usgs=pd.read_csv('GES-2014-04-stage.csv',parse_dates=['Time'],infer_datetime_format=True)
+
+    import matplotlib.pyplot as plt
+    plt.ion()
+    plt.show()
+    fig,ax=plt.subplots(num=1)
+    ax.cla()
+    ax.plot(ges_orig.Time,ges_orig.Stage,label='orig')
+    ax.plot(ges_usgs.Time,ges_usgs.Stage,label='usgs')
 
 
 

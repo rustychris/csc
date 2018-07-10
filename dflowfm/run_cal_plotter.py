@@ -50,28 +50,43 @@ stations = [
     # ('HAAS',{'var':'stage', 'units':'m',
     #          'obs_file':'HecDssExcel8019730502736234932_HAAS_wsel.csv'}),
     # ('GES',{'var':'stage', 'units':'ft',
-    #         'obs_file':'GES_STAGE_april2014.csv'}),
+    #         'obs_file':'GES-2014-04-stage.csv'}),
     # ('LN2',{'var':'stage', 'units':'m',
     #         'obs_file':'HecDssExcel6060592544570966047_LN2_wsel.csv'}),
     # ('SG1',{'var':'stage', 'units':'m',
     #         'obs_file':'HecDssExcel7247236844972400088_SG1_wsel.csv'}),
 
-    # These all need some TLC to fix units and time zone
-    ('DWS',{'var':'stage', 'units':'ft', 'obs_file':'DWS-2014-04-stage.csv'}),
-    ('FPX',{'var':'stage', 'units':'ft', 'obs_file':'FPX-2014-04-stage.csv'}),
-    ('HWB',{'var':'stage', 'units':'ft', 'obs_file':'HWB-2014-04-stage.csv'}),
-    ('LIS',{'var':'stage', 'units':'ft', 'obs_file':'LIS-stage-WY2014.csv'}),
-    ('RYI',{'var':'stage', 'units':'ft', 'obs_file':'RYI-2014-04-stage.csv'}),
-    ('SRV',{'var':'stage', 'units':'ft', 'obs_file':'SRV-2014-04-stage.csv'}),
-    ('SSS',{'var':'stage', 'units':'ft', 'obs_file':'SSS-2014-04-stage.csv'}),
-    ('SUT',{'var':'stage', 'units':'ft', 'obs_file':'SUT-2014-04-stage.csv'}),
+    # # These seem to be okay re units and time zone
+    # ('DWS',{'var':'stage', 'units':'ft', 'obs_file':'DWS-2014-04-stage.csv'}),
+    # ('FPX',{'var':'stage', 'units':'ft', 'obs_file':'FPX-2014-04-stage.csv'}),
+    # ('HWB',{'var':'stage', 'units':'ft', 'obs_file':'HWB-2014-04-stage.csv'}),
+    # ('LIS',{'var':'stage', 'units':'ft', 'obs_file':'LIS-stage-WY2014.csv'}),
+    # ('RYI',{'var':'stage', 'units':'ft', 'obs_file':'RYI-2014-04-stage.csv'}),
+    # ('SRV',{'var':'stage', 'units':'ft', 'obs_file':'SRV-2014-04-stage.csv'}),
+    # ('SSS',{'var':'stage', 'units':'ft', 'obs_file':'SSS-2014-04-stage.csv'}),
+    # ('SUT',{'var':'stage', 'units':'ft', 'obs_file':'SUT-2014-04-stage.csv'}),
 
     # No data until July 7, 2014 according to the csv in calibration_data
     # ('UL1',{'var':'stage', 'units':'m',
     #         'obs_file':'HecDssExcel7632503257539881164_UL1_wsel.csv'}),
 
-    #('GES',{'var':'flow','units':'cfs',
-    #        'obs_file':'flow/GES_flow.csv'}),
+    # ('GES',{'var':'flow','units':'cfs','pred_xs_name':'GES',
+    #         'obs_file':'GES-2014-04-flow.csv'}),
+    # ('RYI',{'var':'flow','units':'cfs','pred_xs_name':'RYI',
+    #         'obs_file':'RYI-2014-04-flow.csv'}),
+    # ('SRV',{'var':'flow','units':'cfs','pred_xs_name':'RioVista',
+    #              'obs_file':'SRV-2014-04-flow.csv'}),
+    ('HWB',{'var':'flow','units':'cfs','pred_xs_name':'HWB',
+            'obs_file':'HWB-2014-04-flow.csv'}),
+    # ('SSS',{'var':'flow','units':'cfs','pred_xs_name':'SSS',
+    #         'obs_file':'SSS-2014-04-flow.csv'}),
+    # ('SUT',{'var':'flow','units':'cfs','pred_xs_name':'SUT',
+    #         'obs_file':'SUT-2014-04-flow.csv'}),
+    ('FPX',{'var':'flow','units':'cfs','pred_xs_name':'Freeport',
+            'obs_file':'FPX-2014-04-flow.csv'}),
+
+    #  DWS: not currently in the model as a flow section
+
     #('DOP',{'var':'flow', 'units':'cfs',
     #        'obs_file':'flow/DOP_flow.csv'}),
 
