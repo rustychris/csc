@@ -84,7 +84,8 @@ if __name__=='__main__':
 
 ##
 
-# This is failing on mpi.
+# This is failing on mpi when using WAQ output.
+
 # There are several hundred messages about ** INFO   : Removed link     754, because of tiny angles at endpoints.
 # not sure which domain that is coming from.
 # is it not properly loading metis?  on the command line it looks okay, no need even to set
