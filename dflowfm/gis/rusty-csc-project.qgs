@@ -31,10 +31,10 @@
   <mapcanvas>
     <units>meters</units>
     <extent>
-      <xmin>607684.60242714022751898</xmin>
-      <ymin>4215823.93974935077130795</ymin>
-      <xmax>623195.26597251032944769</xmax>
-      <ymax>4243285.51427518390119076</ymax>
+      <xmin>614149.7128187712514773</xmin>
+      <ymin>4223481.540909668430686</ymin>
+      <xmax>618027.37870511377695948</xmax>
+      <ymax>4230346.9345411267131567</ymax>
     </extent>
     <rotation>0</rotation>
     <projections>1</projections>
@@ -567,7 +567,7 @@ def my_form_open(dialog, layer, feature):
         <map-layer-style name=""/>
       </map-layer-style-manager>
       <edittypes>
-        <edittype widgetv2type="TextEdit" name="names">
+        <edittype widgetv2type="TextEdit" name="name">
           <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
         </edittype>
       </edittypes>
@@ -624,7 +624,7 @@ def my_form_open(dialog, layer, feature):
         <property key="labeling/distMapUnitScale" value="0,0,0,0,0,0"/>
         <property key="labeling/drawLabels" value="true"/>
         <property key="labeling/enabled" value="true"/>
-        <property key="labeling/fieldName" value="names"/>
+        <property key="labeling/fieldName" value="name"/>
         <property key="labeling/fitInPolygonOnly" value="false"/>
         <property key="labeling/fontCapitals" value="0"/>
         <property key="labeling/fontFamily" value="Noto Sans"/>
@@ -796,15 +796,15 @@ def my_form_open(dialog, layer, feature):
       <DiagramLayerSettings yPosColumn="-1" showColumn="-1" linePlacementFlags="10" placement="2" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
       <annotationform>.</annotationform>
       <aliases>
-        <alias field="names" index="0" name=""/>
+        <alias field="name" index="0" name=""/>
       </aliases>
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions default="-1"/>
-      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="&quot;names&quot;" sortOrder="0">
         <columns>
-          <column width="-1" hidden="0" type="field" name="names"/>
           <column width="-1" hidden="1" type="actions"/>
+          <column width="-1" hidden="0" type="field" name="name"/>
         </columns>
       </attributetableconfig>
       <editform>.</editform>
@@ -836,9 +836,9 @@ def my_form_open(dialog, layer, feature):
         <fieldstyles/>
       </conditionalstyles>
       <defaults>
-        <default field="names" expression=""/>
+        <default field="name" expression=""/>
       </defaults>
-      <previewExpression></previewExpression>
+      <previewExpression>COALESCE( "names", '&lt;NULL>' )</previewExpression>
     </maplayer>
     <maplayer simplifyAlgorithm="0" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="0" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" readOnly="0" geometry="Point" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
       <extent>
@@ -1221,12 +1221,12 @@ def my_form_open(dialog, layer, feature):
         <grid_format type="QString">UGRID</grid_format>
         <name type="QString">grid1</name>
       </Grid0000>
-      <GridCount type="int">2</GridCount>
       <Grid0001>
         <path type="QString">/home/rusty/src/csc/dflowfm/CacheSloughComplex_v95_net.nc</path>
         <grid_format type="QString">UGRID</grid_format>
         <name type="QString">grid1</name>
       </Grid0001>
+      <GridCount type="int">2</GridCount>
     </Umbra>
     <WFSUrl type="QString"></WFSUrl>
     <Paths>
