@@ -15,11 +15,8 @@ six.moves.reload_module(hcp)
 # globals
 his_dir = 'DFM_OUTPUT_FlowFM'
 his_file = os.path.join(his_dir,'FlowFM_his.nc')
-plot_dir = 'figs-20180702'
+plot_dir = 'figs-20180711/'
 os.path.exists(plot_dir) or os.makedirs(plot_dir)
-
-#csv_dir = '/home/rusty/mirrors/ucd-X/mwtract/TASK2_Modeling/Data/Time_Series/INTERNAL_CALIBRATION/Int_Cal_05182018'
-#csv_dir="/home/rusty/mirrors/Ed/Sync/UCD/Projects/CDFW_Arc/dflowfm/27-comp_bedlevtyp_2_3_4/stations"
 
 # Moving cal data into the repo, now reference relative directory
 csv_dir="calibration_data"

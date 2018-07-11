@@ -32,13 +32,13 @@ model=dflow_model.DFlowModel()
 
 # Having issues with 53925-opt, and 52184-dbg, both
 # with MPI.  Runs single core okay.
-model.dfm_bin_dir="/home/rusty/src/dfm/r52184-dbg/bin"
+model.dfm_bin_dir="/home/rusty/src/dfm/r53925-opt/bin"
 model.num_procs=4
 model.z_datum='NAVD88'
 model.projection='EPSG:26910'
 
 # Parameters to control more specific aspects of the run
-model.set_run_dir("runs/base20180710", mode='clean')
+model.set_run_dir("runs/20180710_blt4", mode='clean')
 model.run_start=np.datetime64('2014-04-01')
 model.run_stop=np.datetime64('2014-05-01')
 
@@ -76,11 +76,24 @@ model.add_WindBC(wind=windxy['wind_xy'])
 model.add_extra_file('ND_stations.xyn')
 model.add_extra_file('FlowFMcrs.pli')
 
+##
 if __name__=='__main__':
     model.write()
     model.partition()
-    model.run_model()
-
-
+    # model.run_model()
 
 ##
+
+# This is failing on mpi.
+# There are several hundred messages about ** INFO   : Removed link     754, because of tiny angles at endpoints.
+# not sure which domain that is coming from.
+# is it not properly loading metis?  on the command line it looks okay, no need even to set
+# LD_LIBRARY_PATH
+# Also weird that I don't get those messages when runnig 53925-opt from the command line.
+# is it related to forcing?
+# pare it down: remove obs points, cross-sections, all entries from flowfm.ext => no help
+# drop waq output => runs??
+# Try that from the start with the script, but omit WAQ output.
+
+# Now running on 4 cores.
+
