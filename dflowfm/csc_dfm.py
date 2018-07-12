@@ -97,4 +97,10 @@ if __name__=='__main__':
 # Try that from the start with the script, but omit WAQ output.
 
 # Now running on 4 cores.
+# BLT 4 run had no tides.  revert to BLT and make sure I can get back to the previous state.
+# is it possible that tim files are always in minutes, regardless of Tunit?
+
+# I'd like to replicate the old run, but it's going to be annoying.
+# switch the code to assume tim is always minutes, but then temporarily in csc_dfm.py
+# muck with the tim data to get back to the old behavior.
 
