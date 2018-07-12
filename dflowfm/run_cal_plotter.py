@@ -13,8 +13,12 @@ six.moves.reload_module(hcp)
 
 
 # globals
-his_dir = 'runs/20180710_blt4/DFM_OUTPUT_flowfm'
-his_file = os.path.join(his_dir,'flowfm_0000_his.nc')
+#his_dir = 'runs/20180710_blt3/DFM_OUTPUT_flowfm'
+#his_file = os.path.join(his_dir,'flowfm_0000_his.nc')
+
+his_dir = 'runs/base20180701/DFM_OUTPUT_FlowFM'
+his_file = os.path.join(his_dir,'FlowFM_his.nc')
+
 plot_dir = os.path.join(his_dir,'figs-20180711/')
 os.path.exists(plot_dir) or os.makedirs(plot_dir)
 
@@ -56,7 +60,8 @@ stations = [
     # These seem to be okay re units and time zone
     ('DWS',{'var':'stage', 'units':'ft', 'obs_file':'DWS-2014-04-stage.csv'}),
     ('FPX',{'var':'stage', 'units':'ft', 'obs_file':'FPX-2014-04-stage.csv'}),
-    ('HWB',{'var':'stage', 'units':'ft', 'obs_file':'HWB-2014-04-stage.csv'}),
+    # transposed station name?
+    ('HBW',{'var':'stage', 'units':'ft', 'obs_file':'HWB-2014-04-stage.csv'}),
     ('LIS',{'var':'stage', 'units':'ft', 'obs_file':'LIS-stage-WY2014.csv'}),
     ('RYI',{'var':'stage', 'units':'ft', 'obs_file':'RYI-2014-04-stage.csv'}),
     ('SRV',{'var':'stage', 'units':'ft', 'obs_file':'SRV-2014-04-stage.csv'}),

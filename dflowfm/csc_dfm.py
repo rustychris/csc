@@ -59,9 +59,7 @@ model.add_SourceSinkBC(name='Barker_Pumping_Plant',Q=barker['Q'])
 rio_vista=model.read_bc('forcing-data/WaterLevel.bc')['SRV_0001']
 model.add_StageBC(name='SRV',z=rio_vista['waterlevelbnd'])
 
-# Is it weird that Georgiana, DXC, American and Sac all have the same forcing?
 Qshared=model.read_bc('forcing-data/Discharge.bc')
-
 model.add_FlowBC(name='Georgiana',Q=Qshared['Georgiana_0001']['dischargebnd'])
 model.add_FlowBC(name='DXC',Q=Qshared['DXC_0001']['dischargebnd'])
 model.add_FlowBC(name="SacramentoRiver",Q=Qshared['SacramentoRiver_0001']['dischargebnd'])
@@ -104,3 +102,6 @@ if __name__=='__main__':
 # switch the code to assume tim is always minutes, but then temporarily in csc_dfm.py
 # muck with the tim data to get back to the old behavior.
 
+##
+
+# How to mark a run with the version of script and dfm it used.
