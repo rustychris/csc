@@ -9,7 +9,7 @@ from stompy.model.delft import dfm_grid
 
 six.moves.reload_module(waq)
 
-## 
+##
 
 hydro=waq.HydroFiles("../../dflowfm/csc_95/DFM_DELWAQ_FlowFM/FlowFM.hyd")
 
@@ -119,13 +119,13 @@ class Scen(waq.Scenario):
         subs['IM2S1']=Sub(100,active=False)
         subs['IM2S2']=Sub(100,active=False)
         subs['Zsand']=Sub(100,active=False)
-        
+
         return subs
-    
+
     #def init_bcs(self):
     #def init_loads(self):
 
-    
+
 scen=Scen(hydro)
 scen.map_output += ('tau','ss','Depth',
                     'fSedIM1' ,

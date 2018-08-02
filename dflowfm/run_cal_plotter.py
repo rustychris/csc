@@ -13,11 +13,11 @@ six.moves.reload_module(hcp)
 
 
 # globals
-#his_dir = 'runs/20180710_blt3/DFM_OUTPUT_flowfm'
-#his_file = os.path.join(his_dir,'flowfm_0000_his.nc')
+his_dir = 'runs/20180712_rough027_blt4_bathy01/DFM_OUTPUT_flowfm'
+his_file = os.path.join(his_dir,'flowfm_0000_his.nc')
 
-his_dir = 'runs/base20180701/DFM_OUTPUT_FlowFM'
-his_file = os.path.join(his_dir,'FlowFM_his.nc')
+#his_dir = 'runs/base20180701/DFM_OUTPUT_FlowFM'
+#his_file = os.path.join(his_dir,'FlowFM_his.nc')
 
 plot_dir = os.path.join(his_dir,'figs-20180711/')
 os.path.exists(plot_dir) or os.makedirs(plot_dir)
@@ -36,7 +36,6 @@ defaults = {
 # additional stations:
 # 'SOI', 'SXS', 'RYI', 'HBW', 'SSS', 'SUT', 'DWS', 'LIB', 'LIS',
 # 'FPX', 'SRV'
-
 
 # additional cross-sections:
 #   RioVista Freeport RYI HWB SSS SUT GES

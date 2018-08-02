@@ -38,11 +38,11 @@ model.z_datum='NAVD88'
 model.projection='EPSG:26910'
 
 # Parameters to control more specific aspects of the run
-model.set_run_dir("runs/20180710_blt4", mode='clean')
+model.set_run_dir("runs/20180712_rough027_blt4_bathy01", mode='clean')
 model.run_start=np.datetime64('2014-04-01')
 model.run_stop=np.datetime64('2014-05-01')
 
-model.set_grid("CacheSloughComplex_v95_net.nc")
+model.set_grid("CacheSloughComplex_v95_bathy01_net.nc")
 model.load_mdu('template.mdu')
 
 model.set_cache_dir('cache')
@@ -69,6 +69,16 @@ model.add_FlowBC(name="AmericanRiver",Q=Qshared['AmericanRiver_0001']['discharge
 windxy=model.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
 windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
 model.add_WindBC(wind=windxy['wind_xy'])
+
+# Roughness
+if 0:
+    model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
+else:
+    rough=wkb2shp.shp2geom('forcing-data/manning_n.shp')
+    rough['n']=rough['n'].clip(0.027,np.inf)
+    wkb2shp.wkb2shp('forcing-data/manning_n_027.shp',rough['geom'],fields={'n':rough['n']},
+                    overwrite=True)
+    model.add_RoughnessBC(shapefile='forcing-data/manning_n_027.shp')
 
 # TODO: shift these to come in from GIS
 model.add_extra_file('ND_stations.xyn')
