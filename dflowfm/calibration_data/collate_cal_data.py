@@ -59,7 +59,7 @@ from stompy.io.local import usgs_nwis
 # USGS gauges with Flow and Stage:
 for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("FPX","11447650"),  # Sac River at Freeport
-                                ("RYI", "11455350"), # Cache Slough at Ryer Island
+                                ("RYI","11455350"), # Cache Slough at Ryer Island
                                 ("HWB","11455165"),  # Miner Slough at HWY 84 Bridge
                                 ("SSS","11447850"),  # Steamboat Slough Btw Sac R And Sutter Sl, aka Steamboat Slough nr Walnut
                                 ("SUT","11447830"),  # Sutter Slough at Courtland

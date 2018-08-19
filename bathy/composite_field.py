@@ -21,7 +21,8 @@ dwr_dem_path="/home/rusty/data/bathy_dwr/gtiff"
 from stompy.grid import unstructured_grid
 from stompy.model.delft import dfm_grid
 #g=dfm_grid.DFMGrid("../dflowfm/CacheSloughComplex_v95_bathy01_net.nc")
-g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v97.nc")
+# g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v97.grd")
+g=unstructured_grid.UnTRIM08Grid("../grid/CacheSloughComplex_v98.grd")
 poly=g.boundary_polygon()
 
 poly_buff=poly.buffer(100.0)
@@ -37,7 +38,6 @@ xxyy_pad=[total_bounds[0]-bleed,total_bounds[1]+bleed,
           total_bounds[2]-bleed,total_bounds[3]+bleed]
 
 ##
-# This is super slow with the MultiRasterField
 
 def factory(attrs):
     geo_bounds=attrs['geom'].bounds
@@ -118,7 +118,7 @@ def f(args):
         #    print(repr(exc))
 
 if 1: # __name__ == '__main__':
-    dem_dir="tiles_2m_20180802"
+    dem_dir="tiles_2m_20180819"
     os.path.exists(dem_dir) or os.mkdir(dem_dir)
 
     res=2.0
