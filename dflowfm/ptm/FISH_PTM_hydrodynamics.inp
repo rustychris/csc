@@ -1,0 +1,37 @@
+  -- INPUT FILE FORMAT DOCUMENTATION --------------------------------------------
+ -- 
+ -- The input file format follows sql syntax conventions. An editor that 
+ -- recognizes sql syntax will color code syntax appropriately.
+ -- 
+ -- documentation conventions:
+ --   grouping is indicated by indentation
+ --   [value1:value2] - indicates valid range of values
+ --   {value1|value2|value3|...} - indicates valid values
+ --   <type> - indicates variable type
+ --   'none' = value - indicates default value of varaible
+ --   Ex: - precedes an example value
+ --
+ -- input file conventions:
+ --   each input value should appear on its own line
+ --   all character strings are indicated in quotes
+ --   'none' - indicates that a default value should be used. Only valid
+ --            for some variables.
+ --   -- - precedes comments
+ --
+ -- NUM_FILES = <integer> [0,99] -- number of input files
+ -- for n=1:NUM_FILES
+ --   HYDRO_FILE_PATH = <character string> 
+ --   FILENAME = <character string> 
+ --   GRD_NAME = <character string> 
+ --  
+ --  
+ -- END DOCUMENTATION ---------------------------------------------------------
+
+ NUM_FILES =  1
+ 
+ -- INPUT_FILE 1 --
+ -- HYDRO_FILE_PATH = 'Z:\Hydro\MWT\MWT_age_DCC_closed_Jan6_release\'
+ HYDRO_FILE_PATH = '/home/rusty/mirrors/ucd-X/mwtract/TASK2_Modeling/Scratch/dfm2ptm/untrim2ptm/untrim_run/'
+ FILENAME = 'untrim_hydro_Jan2017.nc'
+ GRD_NAME = 'FISH_PTM_sub.grd'
+ 

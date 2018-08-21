@@ -1,0 +1,102 @@
+ GLOBAL INFORMATION
+   END_TIME = '2017-01-14  0:00:00'
+   RESTART_DIR = 'none'
+   TIME_STEP_SECONDS = 180.
+ 
+   -- deactivation logicals ---
+   REACHED_OPEN_BOUNDARY = 'true'
+   REACHED_FLOW_BOUNDARY = 'true'
+   ENTRAINED_BY_VOLUME_SINK = 'false'
+   CROSSED_LINE = 'false'
+   DEPOSITED_ON_BED = 'false'
+   CONSOLIDATED_ON_BED = 'false'
+ 
+   -- kill logicals ---
+   REACHED_OPEN_BOUNDARY = 'false'
+   REACHED_FLOW_BOUNDARY = 'false'
+   ENTRAINED_BY_VOLUME_SINK = 'false'
+   CROSSED_LINE = 'false'
+   DEPOSITED_ON_BED = 'false'
+   CONSOLIDATED_ON_BED = 'false'
+ 
+   -- line information --- 
+   NLINES = 0
+
+ TRANSECT INFORMATION -- applies to tidal surfing
+   NTRANSECTS = 0
+
+ REGION INFORMATION
+   NREGIONS =  1
+     -- region  1 --- 
+     REGION = 'mwt'
+     REGION_POLYGON_FILE = 'mwt.pol'
+
+ RELEASE DISTRIBUTION INFORMATION
+   NRELEASE_DISTRIBUTION_SETS = 1
+
+   -- release distribution set 1 ---
+   RELEASE_DISTRIBUTION_SET = 'Mokelumne' 
+   MIN_BED_ELEVATION_METERS = -99.
+   MAX_BED_ELEVATION_METERS =  99. 
+   HORIZONTAL_DISTRIBUTION = 'side'
+   SIDE_IDENTIFICATION_METHOD = 'find'
+     XSTART = 636341.0
+     YSTART = 4235373.0
+     XEND   = 636331.0
+     YEND   = 4235326.0
+   NPARTICLE_ASSIGNMENT = 'flow'
+     DENSITY_SPECIFICATION_METHOD = 'constant'
+     PARTICLE_DENSITY = 0.001
+     PARTICLE_DISTRIBUTION = 'random'
+   ZMIN_NON_DIM = 0.00
+   ZMAX_NON_DIM = 1.00
+   VERT_SPACING = 'uniform'
+
+ RELEASE TIMING INFORMATION
+   NRELEASE_TIMING_SETS = 1
+
+   -- release timing set 1 ---        
+   RELEASE_TIMING_SET = 'continuous'
+   INITIAL_RELEASE_TIME = '2017/01/06 12:00:00'
+   RELEASE_TIMING = 'continuous'
+   INACTIVATION_TIME = 'none'
+
+ -- BEHAVIOR INFORMATION
+   NBEHAVIOR_PROFILES = 0
+
+   NBEHAVIORS = 0
+
+ OUTPUT INFORMATION 
+   NOUTPUT_SETS = 1
+
+   -- output set 1 ---
+   OUTPUT_SET = '30min_output'
+   FLAG_LOG_LOGICAL = 'true'
+   BINARY_OUTPUT_INTERVAL_HOURS = 1.00
+   ASCII_OUTPUT_INTERVAL_HOURS = 'none' 
+   HISTOGRAM_OUTPUT_INTERVAL_HOURS = 'none'
+   STATISTICS_OUTPUT_INTERVAL_HOURS = 0.50
+   CONCENTRATION_OUTPUT_INTERVAL_HOURS = 1.00
+   REGION_COUNT_OUTPUT_INTERVAL_HOURS = 0.50
+   REGION_COUNT_UPDATE_INTERVAL_HOURS = 0.50
+   STATE_OUTPUT_INTERVAL_HOURS = 0.50
+   NUMBER_OF_VARIABLES_OUTPUT = 6
+     VARIABLE_OUTPUT = 'velocity'
+     VARIABLE_OUTPUT = 'salinity'
+     VARIABLE_OUTPUT = 'diffusivity'
+     VARIABLE_OUTPUT = 'water_depth'
+     VARIABLE_OUTPUT = 'water_level'
+     VARIABLE_OUTPUT = 'bed_elevation'
+
+     NODATA_VALUE = -999.0
+
+ PARTICLE GROUP INFORMATION 
+ NGROUPS = 1
+   -- group 1 ---
+   GROUP = 'passive'
+   RELEASE_DISTRIBUTION_SET = 'Mokelumne'
+   RELEASE_TIMING_SET = 'continuous'
+   PARTICLE_TYPE = 'none'
+   BEHAVIOR_SET = 'none'
+   OUTPUT_SET = '30min_output'
+   OUTPUT_FILE_BASE = 'Mokelumne'
