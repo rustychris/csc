@@ -5,22 +5,31 @@
   <evaluateDefaultValues active="0"/>
   <layer-tree-group expanded="1" checked="Qt::PartiallyChecked" name="">
     <customproperties/>
-    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="grid_edges_v9720180802090005341" source="/home/rusty/src/csc/grid/grid-edges-v97.shp" name="grid-edges-v97">
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Unchecked" id="sch_north_sac_poly20180817155150147" source="/home/rusty/src/csc/grid/sch-north_sac-poly.shp" name="sch-north_sac-poly">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="edit_notes20180730165033505" source="/home/rusty/src/csc/grid/edit-notes.shp" name="edit-notes">
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Unchecked" id="sch_boundary_poly20180817135118955" source="/home/rusty/src/csc/grid/sch-boundary-poly.shp" name="sch-boundary-poly">
+      <customproperties/>
+    </layer-tree-layer>
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Unchecked" id="grid_edges_v9720180802090005341" source="/home/rusty/src/csc/grid/grid-edges-v97.shp" name="grid-edges-v97">
+      <customproperties/>
+    </layer-tree-layer>
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Unchecked" id="edit_notes20180730165033505" source="/home/rusty/src/csc/grid/edit-notes.shp" name="edit-notes">
       <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="0" providerKey="ogr" checked="Qt::Unchecked" id="manning_n20180712110716603" source="/home/rusty/src/csc/dflowfm/forcing-data/manning_n.shp" name="manning_n">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Unchecked" id="csc_bathy_sources20180725161833778" source="/home/rusty/src/csc/bathy/csc_bathy_sources.shp" name="csc_bathy_sources">
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="csc_bathy_sources20180725161833778" source="/home/rusty/src/csc/bathy/csc_bathy_sources.shp" name="csc_bathy_sources">
       <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="0" providerKey="ogr" checked="Qt::Unchecked" id="grid_nodes20180711134654893" source="/home/rusty/src/csc/dflowfm/derived/grid-nodes.shp" name="grid-nodes">
       <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Unchecked" id="grid_edges20180703131458386" source="/home/rusty/src/csc/dflowfm/derived/grid-edges.shp" name="grid-edges">
+      <customproperties/>
+    </layer-tree-layer>
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="grid_edges_v9820180819133358796" source="/home/rusty/src/csc/grid/grid-edges-v98.shp" name="grid-edges-v98">
       <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="model_features20180627151856482" source="/home/rusty/src/csc/dflowfm/gis/model-features.shp" name="model-features">
@@ -38,7 +47,7 @@
     <layer-tree-layer expanded="0" providerKey="gdal" checked="Qt::Unchecked" id="ndelta_hydro_2m_v420180713150514063" source="/home/rusty/mirrors/ucd-X/Arc_Hydro/CSC_Project/MODELING/1_Hydro_Model_Files/Geometry/Bathymetry_Tiles/NDelta_hydro_2m_v4/ndelta_hydro_2m_v4.tif" name="ndelta_hydro_2m_v4">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-group expanded="1" checked="Qt::Unchecked" name="DWR DEM">
+    <layer-tree-group expanded="0" checked="Qt::Unchecked" name="DWR DEM">
       <customproperties/>
       <layer-tree-layer expanded="0" providerKey="gdal" checked="Qt::Unchecked" id="dem_mokelumne_river_2m20180725162747376" source="/home/rusty/data/bathy_dwr/gtiff/dem_mokelumne_river_2m.tif" name="dem_mokelumne_river_2m">
         <customproperties/>
@@ -80,10 +89,13 @@
         <customproperties/>
       </layer-tree-layer>
     </layer-tree-group>
-    <layer-tree-layer expanded="1" providerKey="gdal" checked="Qt::Checked" id="merged_2m_copy20180727135110620" source="/home/rusty/src/csc/bathy/merged_2m.tif" name="merged_2m hillshade">
+    <layer-tree-layer expanded="1" providerKey="gdal" checked="Qt::Checked" id="merged_2m_hillshade_copy_copy20180819133835210" source="/home/rusty/src/csc/bathy/merged_2m.tif" name="merged_2m hillshade copy copy">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="0" providerKey="gdal" checked="Qt::Checked" id="merged_2m20180727171634169" source="/home/rusty/src/csc/bathy/merged_2m.tif" name="merged_2m">
+    <layer-tree-layer expanded="1" providerKey="gdal" checked="Qt::Checked" id="merged_2m_copy20180819133824144" source="/home/rusty/src/csc/bathy/merged_2m.tif" name="merged_2m copy">
+      <customproperties/>
+    </layer-tree-layer>
+    <layer-tree-layer expanded="0" providerKey="gdal" checked="Qt::Unchecked" id="schism_gridded_2m20180818214143179" source="/home/rusty/src/csc/bathy/schism_gridded_2m.tif" name="schism_gridded_2m">
       <customproperties/>
     </layer-tree-layer>
     <layer-tree-layer expanded="1" providerKey="wms" checked="Qt::Unchecked" id="Google_Satellite_Hybrid20180711133521840" source="crs=EPSG:3857&amp;format=&amp;type=xyz&amp;url=https://mt1.google.com/vt/lyrs%3Dy%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&amp;zmax=19&amp;zmin=0" name="Google Satellite Hybrid">
@@ -94,10 +106,10 @@
   <mapcanvas>
     <units>meters</units>
     <extent>
-      <xmin>624376.28603811818175018</xmin>
-      <ymin>4226750.36380665842443705</ymin>
-      <xmax>626051.122837322531268</xmax>
-      <ymax>4229715.65628688875585794</ymax>
+      <xmin>620056.05528281664010137</xmin>
+      <ymin>4291440.55680861230939627</ymin>
+      <xmax>621817.04454062914010137</xmax>
+      <ymax>4294558.38102736230939627</ymax>
     </extent>
     <rotation>0</rotation>
     <projections>1</projections>
@@ -120,7 +132,9 @@
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m20180726063855919"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="tile_mid_sac_5m_03_rgb20180731141146623"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="edit_notes20180730165033505"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m_hillshade_copy20180819133033288"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727133243922"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="sch_north_sac_poly20180817155150147"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_cells20180727132511251"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m_temp20180725175020924"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid2_cells20180727133121626"/>
@@ -136,17 +150,21 @@
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_columbia_cut_2m20180725162349613"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="LeveeLocations_v320180727134943143"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727132046122"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m20180819124915119"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:32610" srcDatumTransform="-1" destDatumTransform="-1" layerid="20180403_181632_1034_3B_AnalyticMS20180707152909184"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="ndelta_hydro_2m_v4_copy20180725163826320"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="tile_mid_sac_5m_01_rgb20180727155516647"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727133103661"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="memory_20180817155126274"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_miner_slough_2m20180725162613546"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="627566_426782820180802122520512"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_nodes20180727133103693"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="long_transects20180725152052458"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727132511347"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="627566_426982820180802121336629"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="sch_boundary_poly20180817135118955"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_edges20180703131458386"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_mokelumne_river_2m_copy20180817154648705"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_old_river_at_head_2m20180709102729073"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_turner_cut_2m20180725162955452"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_nodes20180711134203383"/>
@@ -161,6 +179,7 @@
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_edges20180717090840410"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:32610" srcDatumTransform="-1" destDatumTransform="-1" layerid="20180402_181633_0e14_3B_AnalyticMS20180707152712116"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid2_nodes20180727133121753"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="schism_gridded_2m20180818214143179"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_cells20180727132046024"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="manning_n20180712110716603"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="model_features20180627151856482"/>
@@ -171,11 +190,13 @@
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m_copy20180727135110620"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="levee_features20180727133854456"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_middle_river_2m20180725162724845"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="schism_gridded_2m20180818213907211"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m20180819132912259"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_cells20180727133103573"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_cells20180727130101862"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_edges20180711134145545"/>
-      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727132211171"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_edges_v9720180802090005341"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727132211171"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="tile_north_sac20180727111132639"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="627566_426782820180802121403866"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_west_canal_2m_2012110220180725163019835"/>
@@ -187,10 +208,13 @@
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_bay_delta_10m_v3_20121109_320180725162407990"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_north_sac_river_2m20180725153709061"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_mokelumne_river_2m20180725162747376"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_edges_v9820180819133358796"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="627566_426982820180802121920054"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="dem_bay_delta_10m_v3_20121109_420180725162426125"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="sch_north_sac_poly20180817135159412"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:4326" srcDatumTransform="-1" destDatumTransform="-1" layerid="samples_depth20180707145925057"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_nodes20180727133244280"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m_hillshade_copy_copy20180819133835210"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid_nodes20180711134654893"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_edges20180727133702896"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="628566_426882820180802102005997"/>
@@ -200,7 +224,9 @@
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="point_features20180628104939353"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid3_cells20180727125335493"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="grid1_cells20180727132211064"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="New_scratch_layer20180817154959908"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:4326" srcDatumTransform="-1" destDatumTransform="-1" layerid="raster20180708214106352"/>
+      <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:26910" srcDatumTransform="-1" destDatumTransform="-1" layerid="merged_2m_copy20180819133824144"/>
       <layer_coordinate_transform destAuthId="EPSG:26910" srcAuthId="EPSG:32610" srcDatumTransform="-1" destDatumTransform="-1" layerid="20180403_181631_1034_3B_AnalyticMS20180707152843793"/>
     </layer_coordinate_transform_info>
   </mapcanvas>
@@ -228,21 +254,35 @@
       <item>dem_turner_cut_2m20180725162955452</item>
       <item>dem_west_canal_2m_2012110220180725163019835</item>
       <item>LeveeLocations_v320180727134943143</item>
-      <item>merged_2m_copy20180727135110620</item>
-      <item>merged_2m20180727171634169</item>
       <item>edit_notes20180730165033505</item>
       <item>grid_edges_v9720180802090005341</item>
+      <item>sch_boundary_poly20180817135118955</item>
+      <item>sch_north_sac_poly20180817155150147</item>
+      <item>schism_gridded_2m20180818214143179</item>
+      <item>grid_edges_v9820180819133358796</item>
+      <item>merged_2m_copy20180819133824144</item>
+      <item>merged_2m_hillshade_copy_copy20180819133835210</item>
     </custom-order>
   </layer-tree-canvas>
   <legend updateDrawingOrder="true">
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="grid-edges-v97" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="sch-north_sac-poly" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="grid_edges_v9720180802090005341" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="sch_north_sac_poly20180817155150147" visible="0"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="edit-notes" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="sch-boundary-poly" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="edit_notes20180730165033505" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="sch_boundary_poly20180817135118955" visible="0"/>
+      </filegroup>
+    </legendlayer>
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="grid-edges-v97" showFeatureCount="0">
+      <filegroup open="true" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="grid_edges_v9720180802090005341" visible="0"/>
+      </filegroup>
+    </legendlayer>
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="edit-notes" showFeatureCount="0">
+      <filegroup open="true" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="edit_notes20180730165033505" visible="0"/>
       </filegroup>
     </legendlayer>
     <legendlayer drawingOrder="-1" open="false" checked="Qt::Unchecked" name="manning_n" showFeatureCount="0">
@@ -250,9 +290,9 @@
         <legendlayerfile isInOverview="0" layerid="manning_n20180712110716603" visible="0"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="csc_bathy_sources" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="csc_bathy_sources" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="csc_bathy_sources20180725161833778" visible="0"/>
+        <legendlayerfile isInOverview="0" layerid="csc_bathy_sources20180725161833778" visible="1"/>
       </filegroup>
     </legendlayer>
     <legendlayer drawingOrder="-1" open="false" checked="Qt::Unchecked" name="grid-nodes" showFeatureCount="0">
@@ -263,6 +303,11 @@
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="grid-edges" showFeatureCount="0">
       <filegroup open="true" hidden="false">
         <legendlayerfile isInOverview="0" layerid="grid_edges20180703131458386" visible="0"/>
+      </filegroup>
+    </legendlayer>
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="grid-edges-v98" showFeatureCount="0">
+      <filegroup open="true" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="grid_edges_v9820180819133358796" visible="1"/>
       </filegroup>
     </legendlayer>
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="model-features" showFeatureCount="0">
@@ -290,7 +335,7 @@
         <legendlayerfile isInOverview="0" layerid="ndelta_hydro_2m_v420180713150514063" visible="0"/>
       </filegroup>
     </legendlayer>
-    <legendgroup open="true" checked="Qt::Unchecked" name="DWR DEM">
+    <legendgroup open="false" checked="Qt::Unchecked" name="DWR DEM">
       <legendlayer drawingOrder="-1" open="false" checked="Qt::Unchecked" name="dem_mokelumne_river_2m" showFeatureCount="0">
         <filegroup open="false" hidden="false">
           <legendlayerfile isInOverview="0" layerid="dem_mokelumne_river_2m20180725162747376" visible="0"/>
@@ -354,14 +399,19 @@
         </filegroup>
       </legendlayer>
     </legendgroup>
-    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="merged_2m hillshade" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="merged_2m hillshade copy copy" showFeatureCount="0">
       <filegroup open="true" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="merged_2m_copy20180727135110620" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="merged_2m_hillshade_copy_copy20180819133835210" visible="1"/>
       </filegroup>
     </legendlayer>
-    <legendlayer drawingOrder="-1" open="false" checked="Qt::Checked" name="merged_2m" showFeatureCount="0">
+    <legendlayer drawingOrder="-1" open="true" checked="Qt::Checked" name="merged_2m copy" showFeatureCount="0">
+      <filegroup open="true" hidden="false">
+        <legendlayerfile isInOverview="0" layerid="merged_2m_copy20180819133824144" visible="1"/>
+      </filegroup>
+    </legendlayer>
+    <legendlayer drawingOrder="-1" open="false" checked="Qt::Unchecked" name="schism_gridded_2m" showFeatureCount="0">
       <filegroup open="false" hidden="false">
-        <legendlayerfile isInOverview="0" layerid="merged_2m20180727171634169" visible="1"/>
+        <legendlayerfile isInOverview="0" layerid="schism_gridded_2m20180818214143179" visible="0"/>
       </filegroup>
     </legendlayer>
     <legendlayer drawingOrder="-1" open="true" checked="Qt::Unchecked" name="Google Satellite Hybrid" showFeatureCount="0">
@@ -2841,6 +2891,7 @@ def my_form_open(dialog, layer, feature):
       <SingleCategoryDiagramRenderer diagramType="Histogram" sizeLegend="0" attributeLegend="1">
         <DiagramCategory penColor="#000000" labelPlacementMethod="XHeight" penWidth="0" diagramOrientation="Up" sizeScale="0,0,0,0,0,0" minimumSize="0" barWidth="5" penAlpha="255" maxScaleDenominator="1e+08" backgroundColor="#ffffff" transparency="0" width="15" scaleDependency="Area" backgroundAlpha="255" angleOffset="1440" scaleBasedVisibility="0" enabled="0" height="15" lineSizeScale="0,0,0,0,0,0" sizeType="MM" lineSizeType="MM" minScaleDenominator="inf">
           <fontProperties description="Noto Sans,10,-1,0,50,0,0,0,0,0" style=""/>
+          <attribute field="" color="#000000" label=""/>
         </DiagramCategory>
         <symbol alpha="1" clip_to_extent="1" type="marker" name="sizeSymbol">
           <layer pass="0" class="SimpleMarker" locked="0">
@@ -2866,7 +2917,7 @@ def my_form_open(dialog, layer, feature):
         </symbol>
       </SingleCategoryDiagramRenderer>
       <DiagramLayerSettings yPosColumn="-1" showColumn="-1" linePlacementFlags="10" placement="2" dist="0" xPosColumn="-1" priority="0" obstacle="0" zIndex="0" showAll="1"/>
-      <annotationform></annotationform>
+      <annotationform>.</annotationform>
       <aliases>
         <alias field="edge_id1" index="0" name=""/>
         <alias field="length" index="1" name=""/>
@@ -2875,7 +2926,7 @@ def my_form_open(dialog, layer, feature):
       <excludeAttributesWMS/>
       <excludeAttributesWFS/>
       <attributeactions default="-1"/>
-      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="1805304032">
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="0">
         <columns>
           <column width="-1" hidden="0" type="field" name="edge_id1"/>
           <column width="-1" hidden="0" type="field" name="length"/>
@@ -2883,10 +2934,10 @@ def my_form_open(dialog, layer, feature):
           <column width="-1" hidden="1" type="actions"/>
         </columns>
       </attributetableconfig>
-      <editform></editform>
+      <editform>.</editform>
       <editforminit/>
       <editforminitcodesource>0</editforminitcodesource>
-      <editforminitfilepath></editforminitfilepath>
+      <editforminitfilepath>.</editforminitfilepath>
       <editforminitcode><![CDATA[# -*- coding: utf-8 -*-
 """
 QGIS forms can have a Python function that is called when the form is
@@ -2904,6 +2955,126 @@ def my_form_open(dialog, layer, feature):
 	geom = feature.geometry()
 	control = dialog.findChild(QWidget, "MyLineEdit")
 ]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>generatedlayout</editorlayout>
+      <widgets/>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <defaults>
+        <default field="edge_id1" expression=""/>
+        <default field="length" expression=""/>
+        <default field="depth_mean" expression=""/>
+      </defaults>
+      <previewExpression></previewExpression>
+    </maplayer>
+    <maplayer simplifyAlgorithm="0" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" readOnly="0" geometry="Line" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
+      <id>grid_edges_v9820180819133358796</id>
+      <datasource>../../grid/grid-edges-v98.shp</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>grid-edges-v98</layername>
+      <srs>
+        <spatialrefsys>
+          <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>2287</srsid>
+          <srid>26910</srid>
+          <authid>EPSG:26910</authid>
+          <description>NAD83 / UTM zone 10N</description>
+          <projectionacronym>utm</projectionacronym>
+          <ellipsoidacronym>GRS80</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="">
+        <map-layer-style name=""/>
+      </map-layer-style-manager>
+      <edittypes>
+        <edittype widgetv2type="TextEdit" name="edge_id1">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="length">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+        <edittype widgetv2type="TextEdit" name="depth_mean">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+      </edittypes>
+      <renderer-v2 forceraster="0" symbollevels="0" type="singleSymbol" enableorderby="0">
+        <symbols>
+          <symbol alpha="1" clip_to_extent="1" type="line" name="0">
+            <layer pass="0" class="SimpleLine" locked="0">
+              <prop k="capstyle" v="square"/>
+              <prop k="customdash" v="5;2"/>
+              <prop k="customdash_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="customdash_unit" v="MM"/>
+              <prop k="draw_inside_polygon" v="0"/>
+              <prop k="joinstyle" v="bevel"/>
+              <prop k="line_color" v="57,26,181,255"/>
+              <prop k="line_style" v="solid"/>
+              <prop k="line_width" v="0.26"/>
+              <prop k="line_width_unit" v="MM"/>
+              <prop k="offset" v="0"/>
+              <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="offset_unit" v="MM"/>
+              <prop k="use_custom_dash" v="0"/>
+              <prop k="width_map_unit_scale" v="0,0,0,0,0,0"/>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation/>
+        <sizescale scalemethod="diameter"/>
+      </renderer-v2>
+      <labeling type="simple"/>
+      <customproperties/>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerTransparency>0</layerTransparency>
+      <displayfield>edge_id1</displayfield>
+      <label>0</label>
+      <labelattributes>
+        <label fieldname="" text="Label"/>
+        <family fieldname="" name="Noto Sans"/>
+        <size fieldname="" units="pt" value="12"/>
+        <bold fieldname="" on="0"/>
+        <italic fieldname="" on="0"/>
+        <underline fieldname="" on="0"/>
+        <strikeout fieldname="" on="0"/>
+        <color fieldname="" red="0" blue="0" green="0"/>
+        <x fieldname=""/>
+        <y fieldname=""/>
+        <offset x="0" y="0" units="pt" yfieldname="" xfieldname=""/>
+        <angle fieldname="" value="0" auto="0"/>
+        <alignment fieldname="" value="center"/>
+        <buffercolor fieldname="" red="255" blue="255" green="255"/>
+        <buffersize fieldname="" units="pt" value="1"/>
+        <bufferenabled fieldname="" on=""/>
+        <multilineenabled fieldname="" on=""/>
+        <selectedonly on=""/>
+      </labelattributes>
+      <annotationform></annotationform>
+      <aliases>
+        <alias field="edge_id1" index="0" name=""/>
+        <alias field="length" index="1" name=""/>
+        <alias field="depth_mean" index="2" name=""/>
+      </aliases>
+      <excludeAttributesWMS/>
+      <excludeAttributesWFS/>
+      <attributeactions default="-1"/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="2042757280">
+        <columns/>
+      </attributetableconfig>
+      <editform></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
       <featformsuppress>0</featformsuppress>
       <editorlayout>generatedlayout</editorlayout>
       <widgets/>
@@ -4115,14 +4286,14 @@ def my_form_open(dialog, layer, feature):
         <xmin>603565</xmin>
         <ymin>4223827</ymin>
         <xmax>635567</xmax>
-        <ymax>4276829</ymax>
+        <ymax>4295829</ymax>
       </extent>
-      <id>merged_2m20180727171634169</id>
+      <id>merged_2m_copy20180819133824144</id>
       <datasource>../../bathy/merged_2m.tif</datasource>
       <keywordList>
         <value></value>
       </keywordList>
-      <layername>merged_2m</layername>
+      <layername>merged_2m copy</layername>
       <srs>
         <spatialrefsys>
           <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
@@ -4185,14 +4356,14 @@ def my_form_open(dialog, layer, feature):
         <xmin>603565</xmin>
         <ymin>4223827</ymin>
         <xmax>635567</xmax>
-        <ymax>4276829</ymax>
+        <ymax>4295829</ymax>
       </extent>
-      <id>merged_2m_copy20180727135110620</id>
+      <id>merged_2m_hillshade_copy_copy20180819133835210</id>
       <datasource>../../bathy/merged_2m.tif</datasource>
       <keywordList>
         <value></value>
       </keywordList>
-      <layername>merged_2m hillshade</layername>
+      <layername>merged_2m hillshade copy copy</layername>
       <srs>
         <spatialrefsys>
           <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
@@ -4206,7 +4377,6 @@ def my_form_open(dialog, layer, feature):
         </spatialrefsys>
       </srs>
       <customproperties>
-        <property key="embeddedWidgets/count" value="0"/>
         <property key="identify/format" value="Value"/>
       </customproperties>
       <provider>gdal</provider>
@@ -4217,7 +4387,7 @@ def my_form_open(dialog, layer, feature):
         <map-layer-style name=""/>
       </map-layer-style-manager>
       <pipe>
-        <rasterrenderer opacity="1" azimuth="315" alphaBand="-1" band="1" zfactor="1" type="hillshade" multidirection="0" angle="45">
+        <rasterrenderer opacity="1" azimuth="315" alphaBand="0" band="1" zfactor="1" type="hillshade" multidirection="0" angle="45">
           <rasterTransparency/>
         </rasterrenderer>
         <brightnesscontrast brightness="0" contrast="0"/>
@@ -4918,6 +5088,294 @@ def my_form_open(dialog, layer, feature):
       </defaults>
       <previewExpression></previewExpression>
     </maplayer>
+    <maplayer simplifyAlgorithm="0" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" readOnly="0" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
+      <extent>
+        <xmin>499546.3125</xmin>
+        <ymin>4139651</ymin>
+        <xmax>653795.8125</xmax>
+        <ymax>4295767</ymax>
+      </extent>
+      <id>sch_boundary_poly20180817135118955</id>
+      <datasource>../../grid/sch-boundary-poly.shp</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>sch-boundary-poly</layername>
+      <srs>
+        <spatialrefsys>
+          <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>2287</srsid>
+          <srid>26910</srid>
+          <authid>EPSG:26910</authid>
+          <description>NAD83 / UTM zone 10N</description>
+          <projectionacronym>utm</projectionacronym>
+          <ellipsoidacronym>GRS80</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="">
+        <map-layer-style name=""/>
+      </map-layer-style-manager>
+      <edittypes>
+        <edittype widgetv2type="TextEdit" name="FID">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+      </edittypes>
+      <renderer-v2 forceraster="0" symbollevels="0" type="singleSymbol" enableorderby="0">
+        <symbols>
+          <symbol alpha="1" clip_to_extent="1" type="fill" name="0">
+            <layer pass="0" class="SimpleFill" locked="0">
+              <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="color" v="165,88,0,255"/>
+              <prop k="joinstyle" v="bevel"/>
+              <prop k="offset" v="0,0"/>
+              <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="offset_unit" v="MM"/>
+              <prop k="outline_color" v="0,0,0,255"/>
+              <prop k="outline_style" v="solid"/>
+              <prop k="outline_width" v="0.26"/>
+              <prop k="outline_width_unit" v="MM"/>
+              <prop k="style" v="solid"/>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation/>
+        <sizescale scalemethod="diameter"/>
+      </renderer-v2>
+      <labeling type="simple"/>
+      <customproperties/>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerTransparency>0</layerTransparency>
+      <displayfield>FID</displayfield>
+      <label>0</label>
+      <labelattributes>
+        <label fieldname="" text="Label"/>
+        <family fieldname="" name="Noto Sans"/>
+        <size fieldname="" units="pt" value="12"/>
+        <bold fieldname="" on="0"/>
+        <italic fieldname="" on="0"/>
+        <underline fieldname="" on="0"/>
+        <strikeout fieldname="" on="0"/>
+        <color fieldname="" red="0" blue="0" green="0"/>
+        <x fieldname=""/>
+        <y fieldname=""/>
+        <offset x="0" y="0" units="pt" yfieldname="" xfieldname=""/>
+        <angle fieldname="" value="0" auto="0"/>
+        <alignment fieldname="" value="center"/>
+        <buffercolor fieldname="" red="255" blue="255" green="255"/>
+        <buffersize fieldname="" units="pt" value="1"/>
+        <bufferenabled fieldname="" on=""/>
+        <multilineenabled fieldname="" on=""/>
+        <selectedonly on=""/>
+      </labelattributes>
+      <annotationform></annotationform>
+      <aliases>
+        <alias field="FID" index="0" name=""/>
+      </aliases>
+      <excludeAttributesWMS/>
+      <excludeAttributesWFS/>
+      <attributeactions default="-1"/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="2083664764">
+        <columns/>
+      </attributetableconfig>
+      <editform></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>generatedlayout</editorlayout>
+      <widgets/>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <defaults>
+        <default field="FID" expression=""/>
+      </defaults>
+      <previewExpression></previewExpression>
+    </maplayer>
+    <maplayer simplifyAlgorithm="0" minimumScale="0" maximumScale="1e+08" simplifyDrawingHints="1" minLabelScale="0" maxLabelScale="1e+08" simplifyDrawingTol="1" readOnly="0" geometry="Polygon" simplifyMaxScale="1" type="vector" hasScaleBasedVisibilityFlag="0" simplifyLocal="1" scaleBasedLabelVisibilityFlag="0">
+      <id>sch_north_sac_poly20180817155150147</id>
+      <datasource>../../grid/sch-north_sac-poly.shp</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>sch-north_sac-poly</layername>
+      <srs>
+        <spatialrefsys>
+          <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>2287</srsid>
+          <srid>26910</srid>
+          <authid>EPSG:26910</authid>
+          <description>NAD83 / UTM zone 10N</description>
+          <projectionacronym>utm</projectionacronym>
+          <ellipsoidacronym>GRS80</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins/>
+      <layerDependencies/>
+      <expressionfields/>
+      <map-layer-style-manager current="">
+        <map-layer-style name=""/>
+      </map-layer-style-manager>
+      <edittypes>
+        <edittype widgetv2type="TextEdit" name="FID">
+          <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
+        </edittype>
+      </edittypes>
+      <renderer-v2 forceraster="0" symbollevels="0" type="singleSymbol" enableorderby="0">
+        <symbols>
+          <symbol alpha="1" clip_to_extent="1" type="fill" name="0">
+            <layer pass="0" class="SimpleFill" locked="0">
+              <prop k="border_width_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="color" v="99,197,133,255"/>
+              <prop k="joinstyle" v="bevel"/>
+              <prop k="offset" v="0,0"/>
+              <prop k="offset_map_unit_scale" v="0,0,0,0,0,0"/>
+              <prop k="offset_unit" v="MM"/>
+              <prop k="outline_color" v="0,0,0,255"/>
+              <prop k="outline_style" v="solid"/>
+              <prop k="outline_width" v="0.26"/>
+              <prop k="outline_width_unit" v="MM"/>
+              <prop k="style" v="solid"/>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation/>
+        <sizescale scalemethod="diameter"/>
+      </renderer-v2>
+      <labeling type="simple"/>
+      <customproperties/>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerTransparency>0</layerTransparency>
+      <displayfield>FID</displayfield>
+      <label>0</label>
+      <labelattributes>
+        <label fieldname="" text="Label"/>
+        <family fieldname="" name="Noto Sans"/>
+        <size fieldname="" units="pt" value="12"/>
+        <bold fieldname="" on="0"/>
+        <italic fieldname="" on="0"/>
+        <underline fieldname="" on="0"/>
+        <strikeout fieldname="" on="0"/>
+        <color fieldname="" red="0" blue="0" green="0"/>
+        <x fieldname=""/>
+        <y fieldname=""/>
+        <offset x="0" y="0" units="pt" yfieldname="" xfieldname=""/>
+        <angle fieldname="" value="0" auto="0"/>
+        <alignment fieldname="" value="center"/>
+        <buffercolor fieldname="" red="255" blue="255" green="255"/>
+        <buffersize fieldname="" units="pt" value="1"/>
+        <bufferenabled fieldname="" on=""/>
+        <multilineenabled fieldname="" on=""/>
+        <selectedonly on=""/>
+      </labelattributes>
+      <annotationform></annotationform>
+      <aliases>
+        <alias field="FID" index="0" name=""/>
+      </aliases>
+      <excludeAttributesWMS/>
+      <excludeAttributesWFS/>
+      <attributeactions default="-1"/>
+      <attributetableconfig actionWidgetStyle="dropDown" sortExpression="" sortOrder="808532278">
+        <columns/>
+      </attributetableconfig>
+      <editform></editform>
+      <editforminit/>
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath></editforminitfilepath>
+      <editforminitcode><![CDATA[]]></editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>generatedlayout</editorlayout>
+      <widgets/>
+      <conditionalstyles>
+        <rowstyles/>
+        <fieldstyles/>
+      </conditionalstyles>
+      <defaults>
+        <default field="FID" expression=""/>
+      </defaults>
+      <previewExpression></previewExpression>
+    </maplayer>
+    <maplayer minimumScale="inf" maximumScale="1e+08" type="raster" hasScaleBasedVisibilityFlag="0">
+      <extent>
+        <xmin>608678.99991430283989757</xmin>
+        <ymin>4271022.99992590956389904</ymin>
+        <xmax>632021.00008569716010243</xmax>
+        <ymax>4298021.00007409043610096</ymax>
+      </extent>
+      <id>schism_gridded_2m20180818214143179</id>
+      <datasource>../../bathy/schism_gridded_2m.tif</datasource>
+      <keywordList>
+        <value></value>
+      </keywordList>
+      <layername>schism_gridded_2m</layername>
+      <srs>
+        <spatialrefsys>
+          <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>2287</srsid>
+          <srid>26910</srid>
+          <authid>EPSG:26910</authid>
+          <description>NAD83 / UTM zone 10N</description>
+          <projectionacronym>utm</projectionacronym>
+          <ellipsoidacronym>GRS80</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <customproperties>
+        <property key="identify/format" value="Value"/>
+      </customproperties>
+      <provider>gdal</provider>
+      <noData>
+        <noDataList bandNo="1" useSrcNoData="1"/>
+      </noData>
+      <map-layer-style-manager current="">
+        <map-layer-style name=""/>
+      </map-layer-style-manager>
+      <pipe>
+        <rasterrenderer opacity="1" alphaBand="0" classificationMax="10" classificationMinMaxOrigin="User" band="1" classificationMin="-10" type="singlebandpseudocolor">
+          <rasterTransparency/>
+          <rastershader>
+            <colorrampshader colorRampType="INTERPOLATED" clip="0">
+              <item alpha="255" value="-10" label="-10" color="#400040"/>
+              <item alpha="255" value="-9" label="-9" color="#4000c0"/>
+              <item alpha="255" value="-8" label="-8" color="#0040ff"/>
+              <item alpha="255" value="-7" label="-7" color="#0080ff"/>
+              <item alpha="255" value="-6" label="-6" color="#00a0ff"/>
+              <item alpha="255" value="-5" label="-5" color="#40c0ff"/>
+              <item alpha="255" value="-4" label="-4" color="#40e0ff"/>
+              <item alpha="255" value="-3" label="-3" color="#40ffff"/>
+              <item alpha="255" value="-2" label="-2" color="#40ffc0"/>
+              <item alpha="255" value="-1" label="-1" color="#40ff40"/>
+              <item alpha="255" value="0" label="0" color="#80ff40"/>
+              <item alpha="255" value="1" label="1" color="#c0ff40"/>
+              <item alpha="255" value="2" label="2" color="#ffff40"/>
+              <item alpha="255" value="3" label="3" color="#ffe040"/>
+              <item alpha="255" value="4" label="4" color="#ffa040"/>
+              <item alpha="255" value="5" label="5" color="#ff6040"/>
+              <item alpha="255" value="6" label="6" color="#ff2040"/>
+              <item alpha="255" value="7" label="7" color="#ff60c0"/>
+              <item alpha="255" value="8" label="8" color="#ffa0ff"/>
+              <item alpha="255" value="9" label="9" color="#ffe0ff"/>
+              <item alpha="255" value="10" label="10" color="#ffe0e1"/>
+            </colorrampshader>
+          </rastershader>
+        </rasterrenderer>
+        <brightnesscontrast brightness="0" contrast="0"/>
+        <huesaturation colorizeGreen="128" colorizeOn="0" colorizeRed="255" colorizeBlue="128" grayscaleMode="0" saturation="0" colorizeStrength="100"/>
+        <rasterresampler maxOversampling="2"/>
+      </pipe>
+      <blendMode>0</blendMode>
+    </maplayer>
   </projectlayers>
   <properties>
     <WMSUrl type="QString"></WMSUrl>
@@ -4969,8 +5427,8 @@ def my_form_open(dialog, layer, feature):
     <WCSLayers type="QStringList"/>
     <Umbra>
       <Grid0000>
-        <path type="QString">None</path>
-        <grid_format type="QString">None</grid_format>
+        <path type="QString">/home/rusty/src/csc/dflowfm/CacheSloughComplex_v95_net.nc</path>
+        <grid_format type="QString">UGRID</grid_format>
         <name type="QString">grid1</name>
       </Grid0000>
       <Grid0001>
@@ -4978,7 +5436,7 @@ def my_form_open(dialog, layer, feature):
         <grid_format type="QString">UGRID</grid_format>
         <name type="QString">grid1</name>
       </Grid0001>
-      <GridCount type="int">0</GridCount>
+      <GridCount type="int">1</GridCount>
     </Umbra>
     <WMSFees type="QString">conditions unknown</WMSFees>
     <Macros>
@@ -5004,14 +5462,20 @@ def my_form_open(dialog, layer, feature):
         <value>csc_bathy_sources20180725161833778</value>
         <value>edit_notes20180730165033505</value>
         <value>grid_edges20180703131458386</value>
+        <value>grid_edges_v9720180802090005341</value>
         <value>grid_nodes20180711134654893</value>
         <value>long_transects20180725152052458</value>
         <value>manning_n20180712110716603</value>
         <value>model_features20180627151856482</value>
         <value>point_features20180628104939353</value>
-        <value>grid_edges_v9720180802090005341</value>
+        <value>sch_boundary_poly20180817135118955</value>
+        <value>sch_north_sac_poly20180817155150147</value>
+        <value>grid_edges_v9820180819133358796</value>
       </LayerSnappingList>
       <LayerSnappingEnabledList type="QStringList">
+        <value>disabled</value>
+        <value>disabled</value>
+        <value>disabled</value>
         <value>disabled</value>
         <value>disabled</value>
         <value>disabled</value>
@@ -5036,8 +5500,14 @@ def my_form_open(dialog, layer, feature):
         <value>2</value>
         <value>2</value>
         <value>2</value>
+        <value>2</value>
+        <value>2</value>
+        <value>2</value>
       </LayerSnappingToleranceUnitList>
       <LayerSnapToList type="QStringList">
+        <value>to_vertex_and_segment</value>
+        <value>to_vertex_and_segment</value>
+        <value>to_vertex_and_segment</value>
         <value>to_vertex_and_segment</value>
         <value>to_vertex_and_segment</value>
         <value>to_vertex_and_segment</value>
@@ -5052,6 +5522,9 @@ def my_form_open(dialog, layer, feature):
       <DefaultSnapType type="QString">to vertex</DefaultSnapType>
       <DefaultSnapTolerance type="double">8</DefaultSnapTolerance>
       <LayerSnappingToleranceList type="QStringList">
+        <value>0.000000</value>
+        <value>0.000000</value>
+        <value>0.000000</value>
         <value>0.000000</value>
         <value>0.000000</value>
         <value>0.000000</value>

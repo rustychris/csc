@@ -5,12 +5,13 @@ for Cache Slough Complex
 """
 
 import os
+import shutil
 import numpy as np
 import logging
 import xarray as xr
 import six
 
-from stompy import utils
+from stompy import utils, filters
 import stompy.model.delft.io as dio
 from stompy.io.local import usgs_nwis
 from stompy.model.delft import dfm_grid
@@ -26,6 +27,7 @@ log=logging.getLogger('csc_dfm')
 ## --------------------------------------------------
 
 from stompy.model.delft import dflow_model
+six.moves.reload_module(dfm_grid)
 six.moves.reload_module(dflow_model)
 six.moves.reload_module(dio)
 
@@ -35,7 +37,7 @@ model=dflow_model.DFlowModel()
 # with MPI.  Looks like dwaq output is not compatible
 # with ugrid+mpi.
 model.dfm_bin_dir="/home/rusty/src/dfm/r53925-opt/bin"
-model.num_procs=1
+model.num_procs=4
 model.z_datum='NAVD88'
 model.projection='EPSG:26910'
 
@@ -44,22 +46,36 @@ model.projection='EPSG:26910'
 # sac flow.
 # 20180807_grid97_02: use verona, no lag.
 # 20180807_grid97_03: use verona, no lag, back to low friction settings.
-model.set_run_dir("runs/20180807_grid97_04_ptm", mode='clean')
+# 20180807_grid98_00: extended sac grid, combine verona and american river, lp
+#                     for upstream flow.
+# 20180807_grid98_01: back to uniform friction settings as in baseline.
+#      failed early.
+#  early results appeared to be no better, so dial friction down to 0.02
+#  everywhere, try again.
+# runs/20180807_grid98_02: fancy setting of depths, targetting conveyance area.
+#    return friction to 0.023
+model.set_run_dir("runs/20180807_grid98_02", mode='clean')
+
 model.run_start=np.datetime64('2014-04-01')
-model.run_stop=np.datetime64('2014-04-03')
+model.run_stop=np.datetime64('2014-05-01')
 
 # model.set_grid("CacheSloughComplex_v95_bathy01_net.nc")
-model.set_grid("CacheSloughComplex_v97_bathy_net.nc")
+# model.set_grid("CacheSloughComplex_v97_bathy_net.nc")
+# model.set_grid("CacheSloughComplex_v98_bathy_net.nc")
+model.set_grid("CacheSloughComplex_v98_bathy_sparse_net.nc")
 
 model.load_mdu('template.mdu')
+model.mdu['output','MapInterval']=7200
+model.mdu['physics','UnifFrictCoef']= 0.023
 
 model.set_cache_dir('cache')
 
 model.add_gazetteer('gis/model-features.shp')
 
 # Default to no dredging for flow and discharge BCs.
-dflow_model.SourceSinkBC.dredge_depth=None
-dflow_model.FlowBC.dredge_depth=None
+# 2018-08-19: why did I disable dredging?
+dflow_model.SourceSinkBC.dredge_depth=-1
+dflow_model.FlowBC.dredge_depth=-1
 
 # original data was in seconds -- so use that explicitly
 barker=model.read_tim('forcing-data/Barker_Pumping_Plant.tim',columns=['Q','s','T'],
@@ -88,18 +104,39 @@ elif 0:
     ds_fpx.time.values -= np.timedelta64(int(2.*3600),'s')
     ds_fpx.stream_flow_mean_daily.values *= 0.9*0.028316847 # cfs => m3/s, and scale down a bit
     model.add_FlowBC(name="SacramentoRiver",Q=ds_fpx.stream_flow_mean_daily)
-else:
-    # verona flows, no lag.
-    ds_ver=usgs_nwis.nwis_dataset(station=11425500,
+elif 0:  # verona flows+american at fair oaks, no lag.
+    dss=[]
+    for stn in [11425500,11446500]:
+        ds=usgs_nwis.nwis_dataset(station=stn,
                                   start_date=model.run_start - np.timedelta64(5,'D'),
                                   end_date=model.run_stop + np.timedelta64(5,'D'),
                                   products=[60,65],cache_dir="cache")
-    ds_ver.time.values -= np.timedelta64(8,'h') # convert UTC to PST.
-    ds_ver.stream_flow_mean_daily.values *= 0.028316847 # cfs => m3/s, and scale down a bit
-    model.add_FlowBC(name="SacramentoRiver",Q=ds_ver.stream_flow_mean_daily)
+        ds.time.values -= np.timedelta64(8,'h') # convert UTC to PST.
+        ds.stream_flow_mean_daily.values *= 0.028316847 # cfs => m3/s, and scale down a bit
+        dss.append(ds)
+    flow_sum=dss[0].stream_flow_mean_daily + dss[1].stream_flow_mean_daily
 
-
-model.add_FlowBC(name="AmericanRiver",Q=Qshared['AmericanRiver_0001']['dischargebnd'])
+    # that's 15 minute data.
+    lp_values=filters.lowpass_godin(flow_sum.values,
+                                    utils.to_dnum(flow_sum.time))
+    flow_sum.values[:]=lp_values
+    model.add_FlowBC(name="SacramentoRiver",Q=flow_sum)
+elif 1:  # freeport flows, lowpass
+    ds_fpx=usgs_nwis.nwis_dataset(station=11447650,
+                                  start_date=model.run_start - np.timedelta64(5,'D'),
+                                  end_date=model.run_stop + np.timedelta64(5,'D'),
+                                  products=[60,65],cache_dir="cache")
+    ds_fpx.time.values -= np.timedelta64(8,'h') # convert UTC to PST.
+    # original data had flows shifted 14.5h, try just 2h? it's possible that they really should
+    # be lagged, not shifted back in time, since the signal is mostly tidal and we're talking
+    # about propagation of the tides.
+    ds_fpx.time.values -= np.timedelta64(int(2.*3600),'s')
+    ds_fpx.stream_flow_mean_daily.values *= 0.028316847 # cfs => m3/s
+    # that's 15 minute data.
+    flow=ds_fpx.stream_flow_mean_daily
+    flow.values[:]=filters.lowpass_godin(flow.values,
+                                         utils.to_dnum(flow.time))
+    model.add_FlowBC(name="SacramentoRiver",Q=flow)
 
 # Try file pass through for forcing data:
 windxy=model.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
@@ -107,9 +144,9 @@ windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y']
 model.add_WindBC(wind=windxy['wind_xy'])
 
 # Roughness
-if 1:
+if 0:
     model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
-else:
+elif 0:
     rough=wkb2shp.shp2geom('forcing-data/manning_n.shp')
     rough['n']=rough['n'].clip(0.027,np.inf)
     wkb2shp.wkb2shp('forcing-data/manning_n_027.shp',rough['geom'],fields={'n':rough['n']},
@@ -120,10 +157,20 @@ else:
 model.add_extra_file('ND_stations.xyn')
 model.add_extra_file('FlowFMcrs.pli')
 
+
 ##
 if __name__=='__main__':
     model.write()
     model.partition()
+    try:
+        script=__file__
+    except NameError:
+        script=None
+    if script:
+        shutil.copyfile(script,
+                        os.path.join( os.path.join(model.run_dir,
+                                                   os.path.basename(script) ) ))
+
     model.run_model()
 
 ##

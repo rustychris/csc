@@ -82,13 +82,23 @@ mbf=field.CompositeField(shp_fn=src_shp,
                          priority_field='priority',
                          data_mode='data_mode',
                          alpha_mode='alpha_mode')
+##
 
-## Generate a tile
+xxyy=(624200., 626190, 4276050, 4277534)
+dem=mbf.to_grid(dx=res,dy=res,bounds=xxyy,
+                mask_poly=poly_buff)
 
-if 0: # very slow to do this in one go
-    dem=mbf.to_grid(dx=2,dy=2,bounds=xxyy_pad,mask_poly=poly_buff)
-    dem=dem.crop(xxyy)
-    dem.write_gdal('csc-composite-dem.tif')
+plt.figure(2).clf()
+# This has two problems -- one, there are some small negative values
+# where the dems join, which get expanded by this,
+# second, it is not aware of the poly mask, so it spends a lot of time
+# filling more than is necessary
+# dem.fill_by_convolution(iterations='adaptive',smoothing=2,kernel_size=7)
+dem.plot(cmap='jet',vmin=-2,vmax=10)
+
+sch.plot_edges(lw=0.4,color='r')
+
+
 
 ##
 
@@ -99,24 +109,25 @@ def f(args):
 
     if not os.path.exists(fn):
         #try:
-            xxyy_pad=[ xxyy[0]-bleed,
-                       xxyy[1]+bleed,
-                       xxyy[2]-bleed,
-                       xxyy[3]+bleed ]
-            dem=mbf.to_grid(dx=res,dy=res,bounds=xxyy_pad,
-                            mask_poly=poly_buff)
-            # not great, since we're not padding the borders, but
-            # there is very little filling now that the 2m dataset
-            # is so pervasive.
-            # fill_holes(dem)
+        xxyy_pad=[ xxyy[0]-bleed,
+                   xxyy[1]+bleed,
+                   xxyy[2]-bleed,
+                   xxyy[3]+bleed ]
+        dem=mbf.to_grid(dx=res,dy=res,bounds=xxyy_pad,
+                        mask_poly=poly_buff)
+        # not great, since we're not padding the borders, but
+        # there is very little filling now that the 2m dataset
+        # is so pervasive.
+        # dem.fill_by_convolution(iterations='adaptive',smoothing=2,kernel_size=7)
 
-            if bleed!=0:
-                dem=dem.crop(xxyy)
-            dem.write_gdal(fn)
+        if bleed!=0:
+            dem=dem.crop(xxyy)
+        dem.write_gdal(fn)
         #except Exception as exc:
         #    print("Failed with exception")
         #    print(repr(exc))
 
+##
 if 1: # __name__ == '__main__':
     dem_dir="tiles_2m_20180819"
     os.path.exists(dem_dir) or os.mkdir(dem_dir)
@@ -144,18 +155,12 @@ if 1: # __name__ == '__main__':
             print("Call %d/%d"%(i,len(calls)))
             f(call)
 
-##
 
 # and then merge them with something like:
 import subprocess
+# if the file exists, its extents will not be updated.
+os.path.exists('merged_2m.tif') and os.unlink('merged_2m.tif')
 subprocess.call("gdal_merge.py -init nan -a_nodata nan -o merged_2m.tif %s/*.tif"%dem_dir,
                 shell=True)
 
-##
-if 0:
-    plt.figure(10).clf() ;dem.plot(cmap=cmap)
-    plt.colorbar()
 
-    # plt.savefig('composite-junction.png')
-
-##

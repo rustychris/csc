@@ -1,3 +1,6 @@
 DFM_DELWAQ_FlowFM
 DFM_OUTPUT_FlowFM
 figs-*
+dfm_ptm_hydro.nc
+run_log
+*_net.nc

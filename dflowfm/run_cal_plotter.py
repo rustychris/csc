@@ -4,8 +4,8 @@ import six
 from stompy import utils
 utils.path("/home/rusty/src/hydro")
 
-from Plotting import filter_wrapper
-six.moves.reload_module(filter_wrapper)
+# from Plotting import filter_wrapper
+# six.moves.reload_module(filter_wrapper)
 
 import Plotting.hydro_cal_plotter as hcp
 
@@ -13,13 +13,13 @@ six.moves.reload_module(hcp)
 
 
 # globals
-his_dir = 'runs/20180712_rough027_blt4_bathy01/DFM_OUTPUT_flowfm'
+his_dir = 'runs/20180807_grid98_02/DFM_OUTPUT_flowfm'
 his_file = os.path.join(his_dir,'flowfm_0000_his.nc')
 
 #his_dir = 'runs/base20180701/DFM_OUTPUT_FlowFM'
 #his_file = os.path.join(his_dir,'FlowFM_his.nc')
 
-plot_dir = os.path.join(his_dir,'figs-20180711/')
+plot_dir = os.path.join(his_dir,'figs-20180820/')
 os.path.exists(plot_dir) or os.makedirs(plot_dir)
 
 # Moving cal data into the repo, now reference relative directory
@@ -119,6 +119,7 @@ stations = [
 ]
 
 mr = hcp.ModelResults(his_file)
+plt.ioff()
 for station in stations:
     args = station[1]
     args['ID'] = station[0]
@@ -128,3 +129,4 @@ for station in stations:
     if p.valid:
         p.plot()
 
+plt.ion()
