@@ -31,7 +31,7 @@
  
  -- INPUT_FILE 1 --
  -- HYDRO_FILE_PATH = 'Z:\Hydro\MWT\MWT_age_DCC_closed_Jan6_release\'
- HYDRO_FILE_PATH = '/home/rusty/mirrors/ucd-X/mwtract/TASK2_Modeling/Scratch/dfm2ptm/untrim2ptm/untrim_run/'
- FILENAME = 'untrim_hydro_Jan2017.nc'
- GRD_NAME = 'FISH_PTM_sub.grd'
+ HYDRO_FILE_PATH = '/home/rusty/src/csc/dflowfm/ptm/'
+ FILENAME = 'dfm_ptm_hydro.nc'
+ GRD_NAME = 'dfm_ptm_hydro.nc'
  

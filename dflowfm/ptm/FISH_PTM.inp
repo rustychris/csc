@@ -1,7 +1,7 @@
  GLOBAL INFORMATION
-   END_TIME = '2017-01-14  0:00:00'
+   END_TIME = '2014-04-02  3:00:00'
    RESTART_DIR = 'none'
-   TIME_STEP_SECONDS = 180.
+   TIME_STEP_SECONDS = 36.
  
    -- deactivation logicals ---
    REACHED_OPEN_BOUNDARY = 'true'
@@ -26,24 +26,25 @@
    NTRANSECTS = 0
 
  REGION INFORMATION
-   NREGIONS =  1
-     -- region  1 --- 
-     REGION = 'mwt'
-     REGION_POLYGON_FILE = 'mwt.pol'
+   NREGIONS =  0
+     -- -- region  1 --- 
+     -- REGION = 'mwt'
+     -- REGION_POLYGON_FILE = 'mwt.pol'
 
  RELEASE DISTRIBUTION INFORMATION
    NRELEASE_DISTRIBUTION_SETS = 1
 
    -- release distribution set 1 ---
-   RELEASE_DISTRIBUTION_SET = 'Mokelumne' 
+   RELEASE_DISTRIBUTION_SET = 'GES' 
    MIN_BED_ELEVATION_METERS = -99.
    MAX_BED_ELEVATION_METERS =  99. 
    HORIZONTAL_DISTRIBUTION = 'side'
    SIDE_IDENTIFICATION_METHOD = 'find'
-     XSTART = 636341.0
-     YSTART = 4235373.0
-     XEND   = 636331.0
-     YEND   = 4235326.0
+     -- these must be within < 1 m.
+     XSTART = 629598.59
+     YSTART = 4233491.60
+     XEND   = 629622.80
+     YEND   = 4233406.48
    NPARTICLE_ASSIGNMENT = 'flow'
      DENSITY_SPECIFICATION_METHOD = 'constant'
      PARTICLE_DENSITY = 0.001
@@ -57,7 +58,7 @@
 
    -- release timing set 1 ---        
    RELEASE_TIMING_SET = 'continuous'
-   INITIAL_RELEASE_TIME = '2017/01/06 12:00:00'
+   INITIAL_RELEASE_TIME = '2014/04/01 00:30:00'
    RELEASE_TIMING = 'continuous'
    INACTIVATION_TIME = 'none'
 
@@ -70,9 +71,9 @@
    NOUTPUT_SETS = 1
 
    -- output set 1 ---
-   OUTPUT_SET = '30min_output'
+   OUTPUT_SET = '1min_output'
    FLAG_LOG_LOGICAL = 'true'
-   BINARY_OUTPUT_INTERVAL_HOURS = 1.00
+   BINARY_OUTPUT_INTERVAL_HOURS = 0.01
    ASCII_OUTPUT_INTERVAL_HOURS = 'none' 
    HISTOGRAM_OUTPUT_INTERVAL_HOURS = 'none'
    STATISTICS_OUTPUT_INTERVAL_HOURS = 0.50
@@ -94,9 +95,9 @@
  NGROUPS = 1
    -- group 1 ---
    GROUP = 'passive'
-   RELEASE_DISTRIBUTION_SET = 'Mokelumne'
+   RELEASE_DISTRIBUTION_SET = 'GES'
    RELEASE_TIMING_SET = 'continuous'
    PARTICLE_TYPE = 'none'
    BEHAVIOR_SET = 'none'
-   OUTPUT_SET = '30min_output'
-   OUTPUT_FILE_BASE = 'Mokelumne'
+   OUTPUT_SET = '1min_output'
+   OUTPUT_FILE_BASE = 'GES'
