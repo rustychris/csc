@@ -54,7 +54,9 @@ model.projection='EPSG:26910'
 #  everywhere, try again.
 # runs/20180807_grid98_02: fancy setting of depths, targetting conveyance area.
 #    return friction to 0.023
-model.set_run_dir("runs/20180807_grid98_02", mode='clean')
+# runs/20180807_grid98_03: split friction 0.02 on sac, 0.023 in CSC, turn off DXC
+#   as the gates were closed.
+model.set_run_dir("runs/20180807_grid98_03", mode='clean')
 
 model.run_start=np.datetime64('2014-04-01')
 model.run_stop=np.datetime64('2014-05-01')
@@ -87,7 +89,8 @@ model.add_StageBC(name='SRV',z=rio_vista['waterlevelbnd'])
 
 Qshared=model.read_bc('forcing-data/Discharge.bc')
 model.add_FlowBC(name='Georgiana',Q=Qshared['Georgiana_0001']['dischargebnd'])
-model.add_FlowBC(name='DXC',Q=Qshared['DXC_0001']['dischargebnd'])
+# DXC was closed during this period.
+# model.add_FlowBC(name='DXC',Q=Qshared['DXC_0001']['dischargebnd'])
 
 if 0:
     # original flows, maybe shifted in time too much?
@@ -152,6 +155,9 @@ elif 0:
     wkb2shp.wkb2shp('forcing-data/manning_n_027.shp',rough['geom'],fields={'n':rough['n']},
                     overwrite=True)
     model.add_RoughnessBC(shapefile='forcing-data/manning_n_027.shp')
+elif 1:
+    # 0.020 on the Sac, 0.023 in CSC
+    model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
 
 # TODO: shift these to come in from GIS
 model.add_extra_file('ND_stations.xyn')
