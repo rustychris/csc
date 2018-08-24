@@ -56,7 +56,10 @@ model.projection='EPSG:26910'
 #    return friction to 0.023
 # runs/20180807_grid98_03: split friction 0.02 on sac, 0.023 in CSC, turn off DXC
 #   as the gates were closed.
-model.set_run_dir("runs/20180807_grid98_03", mode='clean')
+# 04: add structure
+# 05: more outputs
+# 06: more outputs, fix sign of LSHB section
+model.set_run_dir("runs/20180807_grid98_06", mode='noclobber')
 
 model.run_start=np.datetime64('2014-04-01')
 model.run_stop=np.datetime64('2014-05-01')
@@ -73,6 +76,7 @@ model.mdu['physics','UnifFrictCoef']= 0.023
 model.set_cache_dir('cache')
 
 model.add_gazetteer('gis/model-features.shp')
+model.add_gazetteer('gis/point-features.shp')
 
 # Default to no dredging for flow and discharge BCs.
 # 2018-08-19: why did I disable dredging?
@@ -159,12 +163,30 @@ elif 1:
     # 0.020 on the Sac, 0.023 in CSC
     model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
 
-# TODO: shift these to come in from GIS
-model.add_extra_file('ND_stations.xyn')
-model.add_extra_file('FlowFMcrs.pli')
-
+# Culvert at CCS
+if 1:
+    # name => id
+    # polylinefile is filled in from shapefile and name
+    model.add_Structure(name='ccs_breach',
+                        type='gate',
+                        door_height=15, # no overtopping?
+                        lower_edge_level=1.3,
+                        opening_width=0.5, # pretty sure this is ignored.
+                        sill_level=1.29, # gives us a 0.01m opening?
+                        horizontal_opening_direction = 'symmetric')
 
 ##
+
+if 0: # Old code just copied text files
+    model.add_extra_file('ND_stations.xyn')
+    model.add_extra_file('FlowFMcrs.pli')
+else:
+    mon_sections=model.match_gazetteer(monitor=1,geom_type='LineString')
+    mon_points  =model.match_gazetteer(geom_type='Point')
+    model.add_monitor_sections(mon_sections)
+    model.add_monitor_points(mon_points)
+
+#
 if __name__=='__main__':
     model.write()
     model.partition()
@@ -203,5 +225,3 @@ if __name__=='__main__':
 
 ##
 
-# Problem with forcing - seems all of the timestamps are off??
-# 

@@ -6,6 +6,8 @@ and output 2m DEM.
 import numpy as np
 import six
 from stompy.spatial import field
+import matplotlib.pyplot as plt
+
 six.moves.reload_module(field)
 
 import os
@@ -29,7 +31,7 @@ poly_buff=poly.buffer(100.0)
 
 ##
 
-dx=2
+res=dx=2
 xyxy=np.array(poly_buff.bounds)
 xyxy=dx*np.round(xyxy/dx)
 bleed=50
@@ -84,7 +86,7 @@ mbf=field.CompositeField(shp_fn=src_shp,
                          alpha_mode='alpha_mode')
 ##
 
-xxyy=(624200., 626190, 4276050, 4277534)
+xxyy=(605300., 605900, 4234600, 4235400)
 dem=mbf.to_grid(dx=res,dy=res,bounds=xxyy,
                 mask_poly=poly_buff)
 
@@ -94,9 +96,9 @@ plt.figure(2).clf()
 # second, it is not aware of the poly mask, so it spends a lot of time
 # filling more than is necessary
 # dem.fill_by_convolution(iterations='adaptive',smoothing=2,kernel_size=7)
-dem.plot(cmap='jet',vmin=-2,vmax=10)
+dem.plot(cmap='jet',vmin=-2,vmax=4)
 
-sch.plot_edges(lw=0.4,color='r')
+# sch.plot_edges(lw=0.4,color='r')
 
 
 
@@ -129,7 +131,7 @@ def f(args):
 
 ##
 if 1: # __name__ == '__main__':
-    dem_dir="tiles_2m_20180819"
+    dem_dir="tiles_2m_20180824"
     os.path.exists(dem_dir) or os.mkdir(dem_dir)
 
     res=2.0
@@ -159,8 +161,9 @@ if 1: # __name__ == '__main__':
 # and then merge them with something like:
 import subprocess
 # if the file exists, its extents will not be updated.
-os.path.exists('merged_2m.tif') and os.unlink('merged_2m.tif')
-subprocess.call("gdal_merge.py -init nan -a_nodata nan -o merged_2m.tif %s/*.tif"%dem_dir,
+output_fn='merged_2m-20180824.tif'
+os.path.exists(output_fn) and os.unlink(output_fn)
+subprocess.call("gdal_merge.py -init nan -a_nodata nan -o %s %s/*.tif"%(output_fn,dem_dir),
                 shell=True)
 
 
