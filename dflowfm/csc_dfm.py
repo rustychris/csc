@@ -59,7 +59,17 @@ model.projection='EPSG:26910'
 # 04: add structure
 # 05: more outputs
 # 06: more outputs, fix sign of LSHB section
-model.set_run_dir("runs/20180807_grid98_06", mode='noclobber')
+# 07: edge depths are connectivity-based, not mean, and CCS
+#   is dredge out.
+# 08: conn-based was too much - back to edge-means
+# 09: same as 08 but make the structure deeper
+# 10: structure sill up to 0.47, for a gap of 0.03m, and zero out
+#    opening width.
+# 11: limit CCS culvert flow to center edge
+# 12: increase friction in the marsh, and raise the gate to 0.85--0.88m
+# 13: decrease the opening height down to 0.02m ??
+# 14: based on report, make that 0.04, and crank up friction even more.
+model.set_run_dir("runs/20180807_grid98_14", mode='noclobber')
 
 model.run_start=np.datetime64('2014-04-01')
 model.run_stop=np.datetime64('2014-05-01')
@@ -67,10 +77,13 @@ model.run_stop=np.datetime64('2014-05-01')
 # model.set_grid("CacheSloughComplex_v95_bathy01_net.nc")
 # model.set_grid("CacheSloughComplex_v97_bathy_net.nc")
 # model.set_grid("CacheSloughComplex_v98_bathy_net.nc")
-model.set_grid("CacheSloughComplex_v98_bathy_sparse_net.nc")
+# model.set_grid("CacheSloughComplex_v98_bathy_sparse_net.nc")
+# this switches to low-biased edge depths, still optimized, and
+# uses a master DEM with CCS cut down a bit.
+model.set_grid("CacheSloughComplex_v98_bathy2_sparse_net.nc")
 
 model.load_mdu('template.mdu')
-model.mdu['output','MapInterval']=7200
+model.mdu['output','MapInterval']=3600 # 7200
 model.mdu['physics','UnifFrictCoef']= 0.023
 
 model.set_cache_dir('cache')
@@ -151,17 +164,9 @@ windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y']
 model.add_WindBC(wind=windxy['wind_xy'])
 
 # Roughness
-if 0:
-    model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
-elif 0:
-    rough=wkb2shp.shp2geom('forcing-data/manning_n.shp')
-    rough['n']=rough['n'].clip(0.027,np.inf)
-    wkb2shp.wkb2shp('forcing-data/manning_n_027.shp',rough['geom'],fields={'n':rough['n']},
-                    overwrite=True)
-    model.add_RoughnessBC(shapefile='forcing-data/manning_n_027.shp')
-elif 1:
-    # 0.020 on the Sac, 0.023 in CSC
-    model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
+# 0.020 on the Sac, 0.023 in CSC
+# also 0.2(!) in the marsh off CCS
+model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
 
 # Culvert at CCS
 if 1:
@@ -170,21 +175,27 @@ if 1:
     model.add_Structure(name='ccs_breach',
                         type='gate',
                         door_height=15, # no overtopping?
-                        lower_edge_level=1.3,
-                        opening_width=0.5, # pretty sure this is ignored.
-                        sill_level=1.29, # gives us a 0.01m opening?
+                        lower_edge_level=0.89,
+                        opening_width=0.0, # pretty sure this is ignored.
+                        sill_level=0.85, # gives us a 0.05m opening?
                         horizontal_opening_direction = 'symmetric')
+    # these are really just closed
+    for levee_name in ['ccs_west','ccs_east']:
+        model.add_Structure(name=levee_name,
+                            type='gate',
+                            door_height=15,
+                            lower_edge_level=3.5,
+                            opening_width=0.0,
+                            sill_level=3.5,
+                            horizontal_opening_direction = 'symmetric')
+
 
 ##
 
-if 0: # Old code just copied text files
-    model.add_extra_file('ND_stations.xyn')
-    model.add_extra_file('FlowFMcrs.pli')
-else:
-    mon_sections=model.match_gazetteer(monitor=1,geom_type='LineString')
-    mon_points  =model.match_gazetteer(geom_type='Point')
-    model.add_monitor_sections(mon_sections)
-    model.add_monitor_points(mon_points)
+mon_sections=model.match_gazetteer(monitor=1,geom_type='LineString')
+mon_points  =model.match_gazetteer(geom_type='Point')
+model.add_monitor_sections(mon_sections)
+model.add_monitor_points(mon_points)
 
 #
 if __name__=='__main__':
