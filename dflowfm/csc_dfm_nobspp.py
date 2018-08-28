@@ -8,7 +8,6 @@ import os
 import shutil
 import numpy as np
 import logging
-import pandas as pd
 import xarray as xr
 import six
 
@@ -73,11 +72,10 @@ model.projection='EPSG:26910'
 #     note that the high friction area now covers a small chunk of the channel, too.
 # 15: 14 was too frictional -- back off n to 0.12.
 # 16: a short, single core DWAQ-enabled run.
-# 17: month long DWAQ-enabled run, back to MPI.
-model.set_run_dir("runs/20180807_grid98_17", mode='noclobber')
+model.set_run_dir("runs/20180807_grid98_16_single-nobspp", mode='noclobber')
 
 model.run_start=np.datetime64('2014-04-01')
-model.run_stop=np.datetime64('2014-05-01')
+model.run_stop=np.datetime64('2014-04-10')
 
 # this switches to low-biased edge depths, still optimized, and
 # uses a master DEM with CCS cut down a bit.
@@ -86,6 +84,7 @@ model.set_grid("CacheSloughComplex_v98_bathy2_sparse_net.nc")
 model.load_mdu('template.mdu')
 model.mdu['output','MapInterval']=1800 # 7200
 model.mdu['output','WaqInterval']=1800
+model.num_procs=1
 model.mdu['physics','UnifFrictCoef']= 0.023
 
 model.set_cache_dir('cache')
@@ -98,13 +97,10 @@ model.add_gazetteer('gis/point-features.shp')
 dflow_model.SourceSinkBC.dredge_depth=-1
 dflow_model.FlowBC.dredge_depth=-1
 
-# check_bspp.py has the code that converted original tim to csv.
-# awkward reloading of that, but at least it's independent of the
-# simulation period.
-barker=xr.Dataset.from_dataframe(pd.read_csv('forcing-data/Barker_Pumping_Plant.csv',
-                                             parse_dates=['time']))
-barker=barker.set_coords('time')
-model.add_FlowBC(name='Barker_Pumping_Plant',Q=barker['Q'])
+# original data was in seconds -- so use that explicitly
+#barker=model.read_tim('forcing-data/Barker_Pumping_Plant.tim',columns=['Q','s','T'],
+#                      time_unit='S')
+#model.add_FlowBC(name='Barker_Pumping_Plant',Q=barker['Q'])
 
 rio_vista=model.read_bc('forcing-data/WaterLevel.bc')['SRV_0001']
 model.add_StageBC(name='SRV',z=rio_vista['waterlevelbnd'])
