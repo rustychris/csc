@@ -1,0 +1,12 @@
+INIT*
+SRV*
+SAC*
+FISH_PTM.grd_geom
+FISH_PTM.grd_log
+FISH_PTM.met
+FISH_PTM_bathymetry_check.log
+FISH_PTM_input.log
+FISH_PTM_input_checking.log
+fort.*
+ptm_release_log.prn
+
