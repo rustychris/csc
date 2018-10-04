@@ -38,7 +38,7 @@ model=dflow_model.DFlowModel()
 # with MPI.  Looks like dwaq output is not compatible
 # with ugrid+mpi.
 model.dfm_bin_dir="/home/rusty/src/dfm/r53925-opt/bin"
-model.num_procs=4
+model.num_procs=1
 model.z_datum='NAVD88'
 model.projection='EPSG:26910'
 
@@ -114,39 +114,7 @@ model.add_FlowBC(name='Georgiana',Q=Qshared['Georgiana_0001']['dischargebnd'])
 # DXC was closed during this period.
 # model.add_FlowBC(name='DXC',Q=Qshared['DXC_0001']['dischargebnd'])
 
-if 0:
-    # original flows, maybe shifted in time too much?
-    model.add_FlowBC(name="SacramentoRiver",Q=Qshared['SacramentoRiver_0001']['dischargebnd'])
-elif 0:
-    ds_fpx=usgs_nwis.nwis_dataset(station=11447650,
-                                  start_date=model.run_start - np.timedelta64(5,'D'),
-                                  end_date=model.run_stop + np.timedelta64(5,'D'),
-                                  products=[60,65],cache_dir="cache")
-    ds_fpx.time.values -= np.timedelta64(8,'h') # convert UTC to PST.
-    # original data had flows shifted 14.5h, try just 2h? it's possible that they really should
-    # be lagged, not shifted back in time, since the signal is mostly tidal and we're talking
-    # about propagation of the tides.
-    ds_fpx.time.values -= np.timedelta64(int(2.*3600),'s')
-    ds_fpx.stream_flow_mean_daily.values *= 0.9*0.028316847 # cfs => m3/s, and scale down a bit
-    model.add_FlowBC(name="SacramentoRiver",Q=ds_fpx.stream_flow_mean_daily)
-elif 0:  # verona flows+american at fair oaks, no lag.
-    dss=[]
-    for stn in [11425500,11446500]:
-        ds=usgs_nwis.nwis_dataset(station=stn,
-                                  start_date=model.run_start - np.timedelta64(5,'D'),
-                                  end_date=model.run_stop + np.timedelta64(5,'D'),
-                                  products=[60,65],cache_dir="cache")
-        ds.time.values -= np.timedelta64(8,'h') # convert UTC to PST.
-        ds.stream_flow_mean_daily.values *= 0.028316847 # cfs => m3/s, and scale down a bit
-        dss.append(ds)
-    flow_sum=dss[0].stream_flow_mean_daily + dss[1].stream_flow_mean_daily
-
-    # that's 15 minute data.
-    lp_values=filters.lowpass_godin(flow_sum.values,
-                                    utils.to_dnum(flow_sum.time))
-    flow_sum.values[:]=lp_values
-    model.add_FlowBC(name="SacramentoRiver",Q=flow_sum)
-elif 1:  # freeport flows, lowpass
+if 1:  # freeport flows, lowpass
     ds_fpx=usgs_nwis.nwis_dataset(station=11447650,
                                   start_date=model.run_start - np.timedelta64(5,'D'),
                                   end_date=model.run_stop + np.timedelta64(5,'D'),
@@ -216,28 +184,4 @@ if __name__=='__main__':
                                                    os.path.basename(script) ) ))
 
     model.run_model()
-
-##
-
-# This is failing on mpi when using WAQ output.
-
-# There are several hundred messages about ** INFO   : Removed link     754, because of tiny angles at endpoints.
-# not sure which domain that is coming from.
-# is it not properly loading metis?  on the command line it looks okay, no need even to set
-# LD_LIBRARY_PATH
-# Also weird that I don't get those messages when runnig 53925-opt from the command line.
-# is it related to forcing?
-# pare it down: remove obs points, cross-sections, all entries from flowfm.ext => no help
-# drop waq output => runs??
-# Try that from the start with the script, but omit WAQ output.
-
-# Now running on 4 cores.
-# BLT 4 run had no tides.  revert to BLT and make sure I can get back to the previous state.
-# is it possible that tim files are always in minutes, regardless of Tunit?
-
-# I'd like to replicate the old run, but it's going to be annoying.
-# switch the code to assume tim is always minutes, but then temporarily in csc_dfm.py
-# muck with the tim data to get back to the old behavior.
-
-##
 
