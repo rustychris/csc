@@ -4,3 +4,5 @@ figs-*
 dfm_ptm_hydro.nc
 run_log
 *_net.nc
+__pycache__
+CacheSloughComplex_v108-bathy.nc

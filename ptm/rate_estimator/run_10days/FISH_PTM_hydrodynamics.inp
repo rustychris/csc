@@ -32,6 +32,6 @@
  -- INPUT_FILE 1 --
  HYDRO_FILE_PATH = '../../../dflowfm/runs/20180807_grid98_17/'
  FILENAME = 'ptm_hydro.nc'
- GRD_NAME = 'ptm_hydro.nc'
+ GRD_NAME = 'ptm_hydro_sub.grd'
  
 

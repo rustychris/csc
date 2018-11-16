@@ -1,0 +1,136 @@
+ GLOBAL INFORMATION
+   END_TIME = '2014-04-10 00:00:00'
+   RESTART_DIR = 'none'
+   TIME_STEP_SECONDS = 36.
+ 
+   -- deactivation logicals ---
+   REACHED_OPEN_BOUNDARY = 'true'
+   REACHED_FLOW_BOUNDARY = 'true'
+   ENTRAINED_BY_VOLUME_SINK = 'false'
+   CROSSED_LINE = 'false'
+   DEPOSITED_ON_BED = 'false'
+   CONSOLIDATED_ON_BED = 'false'
+ 
+   -- kill logicals ---
+   REACHED_OPEN_BOUNDARY = 'false'
+   REACHED_FLOW_BOUNDARY = 'false'
+   ENTRAINED_BY_VOLUME_SINK = 'false'
+   CROSSED_LINE = 'false'
+   DEPOSITED_ON_BED = 'false'
+   CONSOLIDATED_ON_BED = 'false'
+ 
+   -- line information --- 
+   NLINES = 0
+
+ TRANSECT INFORMATION -- applies to tidal surfing
+   NTRANSECTS = 0
+
+ REGION INFORMATION
+   NREGIONS = 1
+     -- -- region  1 --- 
+     -- REGION = 'mwt'
+     -- REGION_POLYGON_FILE = 'mwt.pol'
+     REGION = 'lindsey'
+     REGION_POLYGON_FILE = 'polygons/lindsey.pol'
+
+ RELEASE DISTRIBUTION INFORMATION
+   NRELEASE_DISTRIBUTION_SETS = 2
+
+   -- release distribution set 1 ---
+   RELEASE_DISTRIBUTION_SET = 'GES' 
+   MIN_BED_ELEVATION_METERS = -99.
+   MAX_BED_ELEVATION_METERS =  99. 
+   HORIZONTAL_DISTRIBUTION = 'side'
+   SIDE_IDENTIFICATION_METHOD = 'find'
+     -- these must be within < 1 m.
+     XSTART = 629598.59
+     YSTART = 4233491.60
+     XEND   = 629622.80
+     YEND   = 4233406.48
+   NPARTICLE_ASSIGNMENT = 'flow'
+     DENSITY_SPECIFICATION_METHOD = 'constant'
+     PARTICLE_DENSITY = 0.001
+     PARTICLE_DISTRIBUTION = 'random'
+   ZMIN_NON_DIM = 0.00
+   ZMAX_NON_DIM = 1.00
+   VERT_SPACING = 'uniform'
+
+   -- release distribution set 2 ---
+   RELEASE_DISTRIBUTION_SET = 'PERCELL' 
+   MIN_BED_ELEVATION_METERS = -99.
+   MAX_BED_ELEVATION_METERS =  99. 
+   HORIZONTAL_DISTRIBUTION = 'region'
+   DISTRIBUTION_IN_REGION = 'cell'
+     -- RH not sure what this does, but distributed was not implemented.
+     -- so how about independent, the only other option.
+     CELL_RELEASE_TIMING = 'independent'
+     PARTICLE_NUMBER_CALCULATION_BASIS = 'area'
+     AREA_PER_PARTICLE_SQUARE_METERS = 1000.
+   ZMIN_NON_DIM = 0.00
+   ZMAX_NON_DIM = 1.00
+   VERT_SPACING = 'uniform'
+
+ RELEASE TIMING INFORMATION
+   NRELEASE_TIMING_SETS = 2
+
+   -- release timing set 1 ---        
+   RELEASE_TIMING_SET = 'continuous'
+   INITIAL_RELEASE_TIME = '2014/04/02 00:00:00'
+   RELEASE_TIMING = 'continuous'
+   INACTIVATION_TIME = 'none'
+
+   -- release timing set 2 ---        
+   RELEASE_TIMING_SET = 'once'
+   INITIAL_RELEASE_TIME = '2014/04/02 00:00:00'
+   RELEASE_TIMING = 'single'
+   INACTIVATION_TIME = 'none'
+
+ -- BEHAVIOR INFORMATION
+   NBEHAVIOR_PROFILES = 0
+
+   NBEHAVIORS = 0
+
+ OUTPUT INFORMATION 
+   NOUTPUT_SETS = 1
+
+   -- output set 1 ---
+   OUTPUT_SET = '1min_output'
+   FLAG_LOG_LOGICAL = 'true'
+   BINARY_OUTPUT_INTERVAL_HOURS = 0.01
+   ASCII_OUTPUT_INTERVAL_HOURS = 'none' 
+   HISTOGRAM_OUTPUT_INTERVAL_HOURS = 'none'
+   STATISTICS_OUTPUT_INTERVAL_HOURS = 0.50
+   CONCENTRATION_OUTPUT_INTERVAL_HOURS = 1.00
+   REGION_COUNT_OUTPUT_INTERVAL_HOURS = 0.50
+   REGION_COUNT_UPDATE_INTERVAL_HOURS = 0.50
+   STATE_OUTPUT_INTERVAL_HOURS = 0.50
+   NUMBER_OF_VARIABLES_OUTPUT = 6
+     VARIABLE_OUTPUT = 'velocity'
+     VARIABLE_OUTPUT = 'salinity'
+     VARIABLE_OUTPUT = 'diffusivity'
+     VARIABLE_OUTPUT = 'water_depth'
+     VARIABLE_OUTPUT = 'water_level'
+     VARIABLE_OUTPUT = 'bed_elevation'
+
+     NODATA_VALUE = -999.0
+
+ PARTICLE GROUP INFORMATION 
+ NGROUPS = 2
+   -- group 1 ---
+   GROUP = 'passive'
+   RELEASE_DISTRIBUTION_SET = 'GES'
+   RELEASE_TIMING_SET = 'continuous'
+   PARTICLE_TYPE = 'none'
+   BEHAVIOR_SET = 'none'
+   OUTPUT_SET = '1min_output'
+   OUTPUT_FILE_BASE = 'GES'
+
+   -- group 2 ---
+   GROUP = 'dist'
+   RELEASE_DISTRIBUTION_SET = 'PERCELL'
+   REGION = 'lindsey'
+   RELEASE_TIMING_SET = 'once'
+   PARTICLE_TYPE = 'none'
+   BEHAVIOR_SET = 'none'
+   OUTPUT_SET = '1min_output'
+   OUTPUT_FILE_BASE = 'DIST'

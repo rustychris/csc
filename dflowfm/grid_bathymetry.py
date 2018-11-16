@@ -252,8 +252,8 @@ def plot_pnt_pair(pnt_pair,node_depths):
 # DO THE WORK
 
 # Load inputs:
-g=unstructured_grid.UnTRIM08Grid('../grid/CacheSloughComplex_v98.grd')
-dem=field.GdalGrid("../bathy/merged_2m-20180824.tif")
+g=unstructured_grid.UnstructuredGrid.from_ugrid('../grid/CacheSloughComplex_v100-edit06.nc')
+dem=field.GdalGrid("../bathy/merged_2m-20181005.tif")
 
 ##
 
@@ -349,5 +349,10 @@ if 0:
 g.add_node_field('depth',node_depths,on_exists='overwrite')
 
 # bathy2 => with dredged out CSC region
-dfm_grid.write_dfm(g,'CacheSloughComplex_v98_bathy2_sparse_net.nc',overwrite=True)
+dfm_grid.write_dfm(g,'CacheSloughComplex_v100_bathy2_sparse_net.nc',overwrite=True)
 
+##
+
+g.add_cell_field('depth',g.interp_node_to_cell(node_depths),on_exists='overwrite')
+
+g.write_cells_shp('derived/grid-cells.shp',overwrite=True)

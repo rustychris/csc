@@ -1,0 +1,7 @@
+*.out
+*.prn
+*.txt
+*.idx
+*.log
+*_log
+attractor

@@ -2,7 +2,7 @@
 Copy and adjust data in preparation for run_cal_plotter.py
 
 This should not be needed routinely, but is here to document
-the provenance of the calibratino data in the repository.
+the provenance of the calibration data in the repository.
 """
 from __future__ import print_function
 import logging
@@ -52,7 +52,7 @@ for fn in glob.glob(os.path.join( csc_stations_dir,"wsel","*.csv")):
 
 # USGS stations:
 download_period=[np.datetime64("2014-03-01"),
-                 np.datetime64("2014-06-01")]
+                 np.datetime64("2018-10-01")]
 from stompy.io.local import usgs_nwis
 
 
@@ -66,7 +66,7 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("DWS","11455335"),  # Sacramento R Deep Water Ship Channel Nr Rio Vista
                                 ("GES","11447905"),  # Sacramento R below Georgiana Slough
                                 # no physical data until 2015-07:
-                                # ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
+                                ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
 ]:
     ds=usgs_nwis.nwis_dataset(usgs_station,
                               download_period[0],download_period[1],
@@ -82,8 +82,8 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
          'height_gage':'Stage'}
     ).to_dataframe()
 
-    df.Stage.to_csv('%s-2014-04-stage.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
-    df.Flow.to_csv('%s-2014-04-flow.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    df.Stage.to_csv('%s-stage.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    df.Flow.to_csv('%s-flow.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
 
 ##
 

@@ -5,6 +5,8 @@ and output 2m DEM.
 """
 import numpy as np
 import six
+import subprocess
+
 from stompy.spatial import field
 import matplotlib.pyplot as plt
 
@@ -13,8 +15,10 @@ six.moves.reload_module(field)
 import os
 opj=os.path.join
 
-tif_paths=[".","/home/rusty/data/bathy_dwr/gtiff",
-           "/home/rusty/mirrors/ucd-X/Arc_Hydro/CSC_Project/MODELING/1_Hydro_Model_Files/Geometry/Bathymetry_Tiles/NDelta_hydro_2m_v4"]
+tif_paths=[".",
+           "/home/rusty/data/bathy_dwr/gtiff",
+           ("/home/rusty/mirrors/ucd-X/Arc_Hydro/CSC_Project/MODELING/"
+            "1_Hydro_Model_Files/Geometry/Bathymetry_Tiles/NDelta_hydro_2m_v4")]
 dwr_dem_path="/home/rusty/data/bathy_dwr/gtiff"
 
 ##
@@ -24,7 +28,10 @@ from stompy.grid import unstructured_grid
 from stompy.model.delft import dfm_grid
 #g=dfm_grid.DFMGrid("../dflowfm/CacheSloughComplex_v95_bathy01_net.nc")
 # g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v97.grd")
-g=unstructured_grid.UnTRIM08Grid("../grid/CacheSloughComplex_v98.grd")
+# g=unstructured_grid.UnTRIM08Grid("../grid/CacheSloughComplex_v98.grd")
+# g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v100-edit06.nc")
+g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v108.nc")
+
 poly=g.boundary_polygon()
 
 poly_buff=poly.buffer(100.0)
@@ -77,31 +84,14 @@ def factory(attrs):
 
     assert False
 
-src_shp='csc_bathy_sources.shp'
+#src_shp='csc_bathy_sources.shp'
+src_shp='csc_bathy_sources_post2014.shp'
 
 mbf=field.CompositeField(shp_fn=src_shp,
                          factory=factory,
                          priority_field='priority',
                          data_mode='data_mode',
                          alpha_mode='alpha_mode')
-##
-
-xxyy=(605300., 605900, 4234600, 4235400)
-dem=mbf.to_grid(dx=res,dy=res,bounds=xxyy,
-                mask_poly=poly_buff)
-
-plt.figure(2).clf()
-# This has two problems -- one, there are some small negative values
-# where the dems join, which get expanded by this,
-# second, it is not aware of the poly mask, so it spends a lot of time
-# filling more than is necessary
-# dem.fill_by_convolution(iterations='adaptive',smoothing=2,kernel_size=7)
-dem.plot(cmap='jet',vmin=-2,vmax=4)
-
-# sch.plot_edges(lw=0.4,color='r')
-
-
-
 ##
 
 def f(args):
@@ -131,7 +121,7 @@ def f(args):
 
 ##
 if 1: # __name__ == '__main__':
-    dem_dir="tiles_2m_20180824"
+    dem_dir="tiles_2m_20181113"
     os.path.exists(dem_dir) or os.mkdir(dem_dir)
 
     res=2.0
@@ -159,9 +149,8 @@ if 1: # __name__ == '__main__':
 
 
 # and then merge them with something like:
-import subprocess
 # if the file exists, its extents will not be updated.
-output_fn='merged_2m-20180824.tif'
+output_fn='merged_2m-20181113.tif'
 os.path.exists(output_fn) and os.unlink(output_fn)
 subprocess.call("gdal_merge.py -init nan -a_nodata nan -o %s %s/*.tif"%(output_fn,dem_dir),
                 shell=True)

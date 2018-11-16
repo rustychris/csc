@@ -105,7 +105,7 @@ hydro=waq.HydroFiles("../../dflowfm/runs/20180807_grid98_16_single/DFM_DELWAQ_fl
 
 # if it runs all the way to the end of the hydro, the bad fluxes on the last step
 # appear to cause a gmres error.
-scen=Scen(hydro)
+scen=Scen(hydro)  # this is still setup
 
 scen.delft_bin="/home/rusty/src/dfm/1.4.6/bin"
 os.environ['LD_LIBRARY_PATH']="/home/rusty/src/dfm/1.4.6/lib"
@@ -114,10 +114,10 @@ scen.map_output += ('TotalDepth','Depth','LocalDepth')
 
 os.path.exists(scen.base_path) and shutil.rmtree(scen.base_path) # for dev
 
-scen.cmd_default()
-scen.cmd_delwaq1()
-scen.cmd_delwaq2()
-scen.write_binary_map_nc()
+scen.cmd_default() # actually write delwaq's input files
+scen.cmd_delwaq1() # delwaq1 is the preprocessor - compiles the water quality processes
+scen.cmd_delwaq2() # actually runs the simulation
+scen.write_binary_map_nc() # translate simulation output from proprietary binary=>nc
 
 
 ##
