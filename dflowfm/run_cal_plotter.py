@@ -27,8 +27,8 @@ def csv(fn): return os.path.join(csv_dir,fn)
 defaults = {
     'corr_datum': True,
     'wl_range': [0.0, 2.5],
-    # 'plot_type': 'plot_3panels',
-    'plot_type': 'plot_basic',
+    'plot_type': 'plot_3panels',
+    # 'plot_type': 'plot_basic',
     'station_dir': csv_dir,
     'plot_dir': plot_dir,
     'point_limit': 500,  # maximum number of points to show in scatter plots, or None for all points
@@ -96,8 +96,8 @@ stations = [
     ('FPX',{'var':'flow','units':'cfs','pred_xs_name':'Freeport',
             'filename':csv('FPX-flow.csv')}),
 
-    ( 'DWS',{'var':'flow','units':'cfs','pred_xs_name':'DWS',
-             'filename':csv('DWS-flow.csv')}),
+    ('DWS',{'var':'flow','units':'cfs','pred_xs_name':'DWS',
+            'filename':csv('DWS-flow.csv')}),
 
     # DOP stage is taken from Thomas's data, but that did not appear to
     # have flows -- flow is pulled from the txt in ARabidoux
@@ -118,6 +118,12 @@ class MyPlotter(hcp.HydroCalPlot):
     ax_txt_text=None
 
     def add_text_to_scatter(self,ax,string,value=None):
+        """
+        Monkey patch text formatting that is a bit more flexible
+        """ 
+        if self.ax_txt is None:
+            return super(MyPlotter,self).add_text_to_scatter(ax,string,value=value)
+            
         if value is not None:
             string="%s: %.3f"%(string,value)
         if self.lines is None:
@@ -149,6 +155,8 @@ class MyPlotter(hcp.HydroCalPlot):
 
 plt.ioff()
 for station in stations:
+    if station[0]!='SSS': continue # DBG
+
     args = station[1]
     args['ID'] = station[0]
     for key in defaults:
