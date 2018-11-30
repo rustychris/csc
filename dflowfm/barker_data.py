@@ -22,7 +22,7 @@ class BarkerPumpsBC(dfm.FlowBC):
         Returns a dataset with a 'Q' variable, and with time as UTC
         """
         ds=cdec.cdec_dataset("BKS",period_start,period_stop,70,
-                             cache_dir='cache')
+                             cache_dir='cache',duration='D')
         # cfs=>m3s, and 'pumping' sign to inflow sign
         ds['Q']=-0.028316847 * ds.sensor0070
         ds['Q'].attrs['units']='m3 s-1'

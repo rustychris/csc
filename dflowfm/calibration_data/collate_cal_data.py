@@ -65,9 +65,16 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("SUT","11447830"),  # Sutter Slough at Courtland
                                 ("DWS","11455335"),  # Sacramento R Deep Water Ship Channel Nr Rio Vista
                                 ("GES","11447905"),  # Sacramento R below Georgiana Slough
+                                ("DCC","11336600"),  # Delta Cross channel (used as BC, too)
                                 # no physical data until 2015-07:
                                 ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
 ]:
+    stage_fn='%s-stage.csv'%usgs_name
+    flow_fn ='%s-flow.csv'%usgs_name
+    if os.path.exists(stage_fn) and os.path.exists(flow_fn):
+        continue # or force.
+    print("Downloading %s"%usgs_name)
+
     ds=usgs_nwis.nwis_dataset(usgs_station,
                               download_period[0],download_period[1],
                               [60,65], # Discharge and Stage
@@ -82,8 +89,8 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
          'height_gage':'Stage'}
     ).to_dataframe()
 
-    df.Stage.to_csv('%s-stage.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
-    df.Flow.to_csv('%s-flow.csv'%usgs_name,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    df.Stage.to_csv(stage_fn,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    df.Flow.to_csv(flow_fn,index=True,date_format="%Y-%m-%d %H:%M",header=True)
 
 ##
 
