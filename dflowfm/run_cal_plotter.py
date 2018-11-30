@@ -11,7 +11,7 @@ import Plotting.hydro_cal_plotter as hcp
 six.moves.reload_module(hcp)
 
 # globals
-his_dir = 'runs/grid100_00/DFM_OUTPUT_flowfm'
+his_dir = 'runs/grid100_07/DFM_OUTPUT_flowfm'
 his_file = os.path.join(his_dir,'flowfm_0000_his.nc')
 
 #his_dir = 'runs/base20180701/DFM_OUTPUT_FlowFM'
@@ -35,6 +35,9 @@ defaults = {
 }
 
 stations = [
+    ('DXC',{'var':'flow','units':'cfs','pred_xs_name':'DXC',
+            'filename':csv('DCC-flow.csv')}),
+
     ('DOP',{'var':'stage', 'units':'m',
             'filename':csv('HecDssExcel9146174433491355875_DOP_wsel.csv')}),
     ('CCS',{'var':'stage', 'units':'m',
@@ -58,7 +61,7 @@ stations = [
     ('HAAS',{'var':'stage', 'units':'m',
              'filename':csv('HecDssExcel8019730502736234932_HAAS_wsel.csv')}),
     ('GES',{'var':'stage', 'units':'ft',
-            'filename':csv('GES-2014-04-stage.csv')}),
+            'filename':csv('GES-stage.csv')}),
     ('LN2',{'var':'stage', 'units':'m',
             'filename':csv('HecDssExcel6060592544570966047_LN2_wsel.csv')}),
     ('SG1',{'var':'stage', 'units':'m',
@@ -85,7 +88,7 @@ stations = [
             'filename':csv('GES-flow.csv')}),
     ('RYI',{'var':'flow','units':'cfs','pred_xs_name':'RYI',
             'filename':csv('RYI-flow.csv')}),
-    ('SRV',{'var':'flow','units':'cfs','pred_xs_name':'RioVista',
+    ('RioVista',{'var':'flow','units':'cfs','pred_xs_name':'RioVista',
             'filename':csv('SRV-flow.csv')}),
     ('HWB',{'var':'flow','units':'cfs','pred_xs_name':'HWB',
             'filename':csv('HWB-flow.csv')}),
@@ -93,7 +96,7 @@ stations = [
             'filename':csv('SSS-flow.csv')}),
     ('SUT',{'var':'flow','units':'cfs','pred_xs_name':'SUT',
             'filename':csv('SUT-flow.csv')}),
-    ('FPX',{'var':'flow','units':'cfs','pred_xs_name':'Freeport',
+    ('Freeport',{'var':'flow','units':'cfs','pred_xs_name':'Freeport',
             'filename':csv('FPX-flow.csv')}),
 
     ('DWS',{'var':'flow','units':'cfs','pred_xs_name':'DWS',
@@ -155,8 +158,6 @@ class MyPlotter(hcp.HydroCalPlot):
 
 plt.ioff()
 for station in stations:
-    if station[0]!='SSS': continue # DBG
-
     args = station[1]
     args['ID'] = station[0]
     for key in defaults:

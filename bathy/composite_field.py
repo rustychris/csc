@@ -133,8 +133,8 @@ if 1: # __name__ == '__main__':
                         np.ceil(total_bounds[3]/tile_y) * tile_y ]
 
     calls=[]
-    for x0 in np.arange(total_bounds[0],total_bounds[1],tile_x):
-        for y0 in np.arange(total_bounds[2],total_bounds[3],tile_y):
+    for x0 in np.arange(total_tile_bounds[0],total_tile_bounds[1],tile_x):
+        for y0 in np.arange(total_tile_bounds[2],total_tile_bounds[3],tile_y):
             xxyy=(x0,x0+tile_x,y0,y0+tile_y)
             fn=os.path.join(dem_dir,"%.0f_%.0f.tif"%(x0,y0))
             calls.append( [fn,xxyy,res] )
