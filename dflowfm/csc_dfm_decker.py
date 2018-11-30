@@ -37,13 +37,15 @@ six.moves.reload_module(dfm)
 six.moves.reload_module(dio)
 six.moves.reload_module(barker_data)
 six.moves.reload_module(nwis_bc)
+import local_config
+local_config.install()
 
 model=dfm.DFlowModel()
+
 
 # Having issues with 53925-opt, and 52184-dbg, both
 # with MPI.  Looks like dwaq output is not compatible
 # with ugrid+mpi.
-model.dfm_bin_dir="/home/rusty/src/dfm/r53925-opt/bin"
 model.num_procs=4
 model.z_datum='NAVD88'
 model.projection='EPSG:26910'
@@ -66,6 +68,7 @@ if 1: # Instead, try the bedlevtype=2 with straight node bathy
     dst_grid="CacheSloughComplex_v108-bathy.nc"
     bathy_fn="../bathy/merged_2m-20181113.tif"
     if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
+        from stompy.spatial import field
         g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
         dem=field.GdalGrid(bathy_fn)
         g.add_node_field('depth',dem(g.nodes['x']),on_exists='overwrite')
