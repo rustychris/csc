@@ -38,13 +38,15 @@ six.moves.reload_module(dfm)
 six.moves.reload_module(dio)
 six.moves.reload_module(barker_data)
 six.moves.reload_module(nwis_bc)
+import local_config
+local_config.install()
 
 model=dfm.DFlowModel()
+
 
 # Having issues with 53925-opt, and 52184-dbg, both
 # with MPI.  Looks like dwaq output is not compatible
 # with ugrid+mpi.
-model.dfm_bin_dir="/home/rusty/src/dfm/r53925-opt/bin"
 model.num_procs=4
 model.z_datum='NAVD88'
 model.projection='EPSG:26910'
