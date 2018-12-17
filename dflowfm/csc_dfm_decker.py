@@ -63,47 +63,54 @@ model.utc_offset=np.timedelta64(-8,'h') # PST
 #          drop the roughness shapefile, set global 0.025
 # grid100_07: back to same settings as _03, but with new grid that
 #      slims DWS and parts of DWB (Miner slough?)
-#        _08: fix some bathy, add sections.a
-model.set_run_dir("runs/grid100_08", mode='askclobber')
+#        _08: fix some bathy, add sections.
+#        _09: more sections, dial down DWS friction to 0.02, dial up friction
+#             north of Sutter
+#        _10: new bit of stairstep grid, more sections, increase friction in
+#             SUT, HWB, SSS
+#        _11: even lower friction on DWS
+#        _12: revert friction on DWS, bump up friction on dead-end north of SUT,
+#             and drop friction on lower sac to match rest of sac.
+#        _13: return to Thomas' roughness for a reality check.
+#        _14: run a December 2017 period, see if phasing is better when DCC is closed.
+#        _15: same, but flip TSL to see if it makes a difference in cal.
+model.set_run_dir("runs/grid100_15", mode='askclobber')
 
-model.run_start=np.datetime64('2018-08-01')
-model.run_stop=np.datetime64('2018-09-01')
+#model.run_start=np.datetime64('2018-08-01')
+#model.run_stop=np.datetime64('2018-09-01')
+model.run_start=np.datetime64('2017-12-01')
+model.run_stop=np.datetime64('2017-12-10')
+
 model.load_mdu('template.mdu')
 
-if 0:
-    # this switches to low-biased edge depths, still optimized, and
-    # uses a master DEM with CCS cut down a bit.
-    model.set_grid("CacheSloughComplex_v100_bathy2_sparse_net.nc")
-if 1: # Instead, try the nonlin2d with straight node bathy
-    src_grid='../grid/CacheSloughComplex_v110.nc'
-    dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
-    bathy_fn="../bathy/merged_2m-20181113.tif"
-    if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
-        g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
-        dem=field.GdalGrid(bathy_fn)
-        node_depths=dem(g.nodes['x'])
-        while np.any(np.isnan(node_depths)):
-            missing=np.nonzero(np.isnan(node_depths))[0]
-            print("Looping to fill in %d missing node depths"%len(missing))
-            for n in missing:
-                nbrs=g.node_to_nodes(n)
-                node_depths[n]=np.nanmean(node_depths[nbrs])
-        g.add_node_field('depth',node_depths,on_exists='overwrite')
-        g.write_ugrid(dst_grid,overwrite=True)
-    else:
-        g=unstructured_grid.UnstructuredGrid.from_ugrid(dst_grid)
-    model.set_grid(g)
+src_grid='../grid/CacheSloughComplex_v111-edit01.nc'
+dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
+bathy_fn="../bathy/merged_2m-20181113.tif"
+if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
+    g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
+    dem=field.GdalGrid(bathy_fn)
+    node_depths=dem(g.nodes['x'])
+    while np.any(np.isnan(node_depths)):
+        missing=np.nonzero(np.isnan(node_depths))[0]
+        print("Looping to fill in %d missing node depths"%len(missing))
+        for n in missing:
+            nbrs=g.node_to_nodes(n)
+            node_depths[n]=np.nanmean(node_depths[nbrs])
+    g.add_node_field('depth',node_depths,on_exists='overwrite')
+    g.write_ugrid(dst_grid,overwrite=True)
+else:
+    g=unstructured_grid.UnstructuredGrid.from_ugrid(dst_grid)
+model.set_grid(g)
 
-    # according to the manual, nonlin2d only works for bedlevtyp=3
-    # and conveyance2D>=1 (?)
-    model.mdu['geometry','BedlevType']=3
-    # ostensibly analytic 2D conveyance with 3.
-    # 2 is faster, and appears less twitchy while showing very similar
-    #  calibration results.
-    # 0 blocks some flow, 1 was a little twitchy.
-    model.mdu['geometry','Conveyance2D']=2
-    # enabling this seems to cause a lot of oscillation.
-    model.mdu['geometry','Nonlin2D']=0
+# I think this doesn't matter with conveyance2d>0
+model.mdu['geometry','BedlevType']=3
+# ostensibly analytic 2D conveyance with 3.
+# 2 is faster, and appears less twitchy while showing very similar
+#  calibration results.
+# 0 blocks some flow, 1 was a little twitchy.
+model.mdu['geometry','Conveyance2D']=2
+# enabling this seems to cause a lot of oscillation.
+model.mdu['geometry','Nonlin2D']=0
 
 model.mdu['output','MapInterval']=7200
 #model.mdu['output','WaqInterval']=1800
@@ -133,11 +140,30 @@ else:
 # unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
 # and the test period shows slightly negative means, so it's possible that it is
 # correct.
+# flipping this did improve a lot of phases, but stage at TSL is much worse, and
+# my best reading of the metadata is that it should not be flipped.
 model.add_bcs(nwis_bc.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
+# GSS: from compare_flows and lit, must be flipped.
 model.add_bcs(nwis_bc.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
                                  filters=[dfm.Transform(lambda x: -x)] ))
+
+class FillGaps(dfm.BCFilter):
+    max_gap_interp_s=2*60*60
+    large_gap_value=0.0
+    
+    def transform_output(self,da):
+        # have self.bc, self.bc.model
+        # self.bc.data_start, self.bc.data_stop
+        if len(da)==0:
+            log.warning("FillGaps called with no input data")
+            da=xr.DataArray(self.large_gap_value)
+            return da
+        log.warning("FillGaps code incomplete")
+        return da
+
 model.add_bcs(nwis_bc.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
-                                 filters=[dfm.Transform(lambda x: -x)] ))
+                                 filters=[FillGaps(),
+                                          dfm.Transform(lambda x: -x)] ) )
 
 sac=nwis_bc.NwisFlowBC(name="SacramentoRiver",station=11447650,
                        pad=np.timedelta64(5,'D'),cache_dir='cache',
@@ -165,9 +191,8 @@ if 0: # don't have wind data for newer period
     model.add_WindBC(wind=windxy['wind_xy'])
     
 # Roughness
-# 0.020 on the Sac, 0.023 in CSC
-# also 0.2(!) in the marsh off CCS
-model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
+# model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
+model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
 
 # Culvert at CCS
 if 1:

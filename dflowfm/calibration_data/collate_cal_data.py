@@ -65,9 +65,15 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("SUT","11447830"),  # Sutter Slough at Courtland
                                 ("DWS","11455335"),  # Sacramento R Deep Water Ship Channel Nr Rio Vista
                                 ("GES","11447905"),  # Sacramento R below Georgiana Slough
+                                ("GSS","11447903"), # Georgiana Slough at Sac River
                                 ("DCC","11336600"),  # Delta Cross channel (used as BC, too)
+                                ("SDC","11447890"), # Sac above Delta Cross Channel
+                                ("CourtToe","11455167"), # Prospect Slough at Toe Drain near Courtland
+                                ("LibertyToe","11455140"), # Toe Drain at Liberty Island
                                 # no physical data until 2015-07:
                                 ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
+                                ("TSL","11337080"),  # Threemile slough near Rio Vista
+                                ("SDI","11455478"),  # Sac River at Decker Island
 ]:
     stage_fn='%s-stage.csv'%usgs_name
     flow_fn ='%s-flow.csv'%usgs_name
@@ -83,14 +89,17 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
     ds['time'] = ds.time - np.timedelta64(8,'h')
 
     # Match the names up with existing csv files:
-    df=ds.rename(
-        {'time':'Time',
-         'stream_flow_mean_daily':'Flow',
-         'height_gage':'Stage'}
-    ).to_dataframe()
+    ds=ds.rename({'time':'Time'})
+    if 'stream_flow_mean_daily' in ds:
+        ds=ds.rename({'stream_flow_mean_daily':'Flow'})
+    if 'height_gage' in ds:
+        ds=ds.rename({'height_gage':'Stage'})
+    df=ds.to_dataframe()
 
-    df.Stage.to_csv(stage_fn,index=True,date_format="%Y-%m-%d %H:%M",header=True)
-    df.Flow.to_csv(flow_fn,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    if 'Stage' in df:
+        df.Stage.to_csv(stage_fn,index=True,date_format="%Y-%m-%d %H:%M",header=True)
+    if 'Flow' in df:
+        df.Flow.to_csv(flow_fn,index=True,date_format="%Y-%m-%d %H:%M",header=True)
 
 ##
 
