@@ -23,6 +23,7 @@ if sys.platform=='win32':
 else:
     dfm_bin_dir=os.path.join(os.environ['HOME'],
                              "src/dfm/r53925-opt/bin")
+    share_bin_dir=dfm_bin_dir
 
 
 def install():

@@ -76,7 +76,17 @@ model.utc_offset=np.timedelta64(-8,'h') # PST
 #        _13: return to Thomas' roughness for a reality check.
 #        _14: run a December 2017 period, see if phasing is better when DCC is closed.
 #        _15: same, but flip TSL to see if it makes a difference in cal.
-model.set_run_dir("runs/grid100_15", mode='askclobber')
+#        _16: try nonlin2d, and revert to constant n=0.023 roughness
+#        _17: for apples-to-apples, same as 16 but nonlin2d=0
+#        _18: keep nonlin2d=0, and bring in updated grid with doubled shorelines for
+#             Sac and DWS
+#        _19: hmm - step back to conveyance2d=-1
+#             amplitudes are down, and lags are crazy bad at fpt. can looker closer, but this
+#             seems much worse.
+#        _20: switch to bedlevtype=6
+#        _21: and use adjusted node elevations
+#        _22: simpler adjustment just to get nodes to reflect means
+model.set_run_dir("runs/grid100_22", mode='askclobber')
 
 #model.run_start=np.datetime64('2018-08-01')
 #model.run_stop=np.datetime64('2018-09-01')
@@ -85,19 +95,23 @@ model.run_stop=np.datetime64('2017-12-10')
 
 model.load_mdu('template.mdu')
 
-src_grid='../grid/CacheSloughComplex_v111-edit01.nc'
+src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
 dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
 bathy_fn="../bathy/merged_2m-20181113.tif"
 if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
     g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
     dem=field.GdalGrid(bathy_fn)
-    node_depths=dem(g.nodes['x'])
-    while np.any(np.isnan(node_depths)):
-        missing=np.nonzero(np.isnan(node_depths))[0]
-        print("Looping to fill in %d missing node depths"%len(missing))
-        for n in missing:
-            nbrs=g.node_to_nodes(n)
-            node_depths[n]=np.nanmean(node_depths[nbrs])
+    if 0:
+        node_depths=dem(g.nodes['x'])
+        while np.any(np.isnan(node_depths)):
+            missing=np.nonzero(np.isnan(node_depths))[0]
+            print("Looping to fill in %d missing node depths"%len(missing))
+            for n in missing:
+                nbrs=g.node_to_nodes(n)
+                node_depths[n]=np.nanmean(node_depths[nbrs])
+    else:
+        import dem_cell_node_bathy
+        node_depths=dem_cell_node_bathy.dem_to_cell_node_bathy(dem,g)
     g.add_node_field('depth',node_depths,on_exists='overwrite')
     g.write_ugrid(dst_grid,overwrite=True)
 else:
@@ -105,18 +119,21 @@ else:
 model.set_grid(g)
 
 # I think this doesn't matter with conveyance2d>0
-model.mdu['geometry','BedlevType']=3
+# 6 is maybe better for getting good edges
+model.mdu['geometry','BedlevType']=6
 # ostensibly analytic 2D conveyance with 3.
 # 2 is faster, and appears less twitchy while showing very similar
 #  calibration results.
 # 0 blocks some flow, 1 was a little twitchy.
-model.mdu['geometry','Conveyance2D']=2
+model.mdu['geometry','Conveyance2D']=-1
 # enabling this seems to cause a lot of oscillation.
+# but it may be necessary to get good prism on the narrow channels.
 model.mdu['geometry','Nonlin2D']=0
 
 model.mdu['output','MapInterval']=7200
-#model.mdu['output','WaqInterval']=1800
 model.mdu['physics','UnifFrictCoef']= 0.023
+# fail out when it goes unstable.
+model.mdu['numerics','MinTimestepBreak']=0.05
 
 model.set_cache_dir('cache')
 
@@ -192,9 +209,10 @@ if 0: # don't have wind data for newer period
     windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
     model.add_WindBC(wind=windxy['wind_xy'])
     
-# Roughness
+
+# Roughness 
 # model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
-model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
+# model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
 
 # Culvert at CCS
 if 1:

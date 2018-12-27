@@ -44,7 +44,6 @@ six.moves.reload_module(dio)
 six.moves.reload_module(barker_data)
 six.moves.reload_module(nwis_bc)
 
-
 # for DCC, when the gates are closed they sometimes do not report
 # flow, so here we will those gaps with 0.
 class FillGaps(dfm.BCFilter):
@@ -74,23 +73,20 @@ def base_config(model):
     model.utc_offset=np.timedelta64(-8,'h') # PST
 
     model.run_start=np.datetime64('2017-12-01')
-    model.run_stop=np.datetime64('2017-12-10')
+    # very short!
+    model.run_stop=np.datetime64('2017-12-05')
 
     model.load_mdu('template.mdu')
 
-    src_grid='../grid/CacheSloughComplex_v111-edit01.nc'
+    src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
     dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
     bathy_fn="../bathy/merged_2m-20181113.tif"
     if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
         g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
         dem=field.GdalGrid(bathy_fn)
-        node_depths=dem(g.nodes['x'])
-        while np.any(np.isnan(node_depths)):
-            missing=np.nonzero(np.isnan(node_depths))[0]
-            print("Looping to fill in %d missing node depths"%len(missing))
-            for n in missing:
-                nbrs=g.node_to_nodes(n)
-                node_depths[n]=np.nanmean(node_depths[nbrs])
+        # node_depths=dem(g.nodes['x'])
+        import dem_cell_node_bathy
+        node_depths=dem_cell_node_bathy.dem_to_cell_node_bathy(dem,g)
         g.add_node_field('depth',node_depths,on_exists='overwrite')
         g.write_ugrid(dst_grid,overwrite=True)
     else:
@@ -98,18 +94,18 @@ def base_config(model):
     model.set_grid(g)
 
     # I think this doesn't matter with conveyance2d>0
-    model.mdu['geometry','BedlevType']=3
+    model.mdu['geometry','BedlevType']=6
     # ostensibly analytic 2D conveyance with 3.
     # 2 is faster, and appears less twitchy while showing very similar
     #  calibration results.
     # 0 blocks some flow, 1 was a little twitchy.
-    model.mdu['geometry','Conveyance2D']=2
+    model.mdu['geometry','Conveyance2D']=-1
     # enabling this seems to cause a lot of oscillation.
     model.mdu['geometry','Nonlin2D']=0
 
     model.mdu['output','MapInterval']=7200
     #model.mdu['output','WaqInterval']=1800
-    model.mdu['physics','UnifFrictCoef']= 0.023
+    model.mdu['physics','UnifFrictCoef']= 0.025
 
     model.set_cache_dir('cache')
 
@@ -197,7 +193,6 @@ run_log_file=os.path.join(run_coll_dir,"runlog")
 if os.path.exists(run_log_file):
     existing_runs=pd.read_csv(run_log_file)
 
-    
 os.path.exists(run_coll_dir) or os.makedirs(run_coll_dir)
 
 
@@ -340,37 +335,46 @@ def print_settings_and_score(settings,model):
     print(settings_to_txt(settings))
     print("SCORE: %.5f"%get_model_score(model))
 
-
-def optimize():    
-    base_settings=baseline_settings()
+def optimize():
+    # the starting point
+    best_settings=baseline_settings()
 
     while 1:
-        settings=dict(base_settings) # copy
-        model=check_and_run_settings(settings)
-        print_settings_and_score(settings,model)
+        accepted_new=False
+        
+        for name in regions['name']:
+            print("Optimizing %s"%name)
+            # baseline score before changing this parameter
+            model=check_and_run_settings(best_settings)
+            print_settings_and_score(best_settings,model)
+            
+            # best of this iteration
+            best_score=init_score=get_model_score(model)
 
-        # best of this iteration
-        best_score=init_score=get_model_score(model)
-        best_settings=settings
-
-        for delta_n in [0.004,-0.004]:
-            # For starts, run baseline, and then for each region run with 0.004 higher
-            # first time around
-
-            for name in regions['name']:
-                settings=dict(base_settings)
-
-                settings[name]+=delta_n
-                model=check_and_run_settings(settings)
-                print_settings_and_score(settings,model)
-                this_score=get_model_score(model)
-                if this_score<best_score:
-                    print('New best')
-                    best_settings=settings
-                    best_score=this_score
-        if best_score < init_score:
-            base_settings=best_settings
-        else:
+            # try increasing, then decreasing
+            for delta_n in [0.005,-0.005]:
+                # try increasing this region's roughness
+                while 1:
+                    settings=dict(best_settings) # copy
+                    settings[name]+=delta_n # step
+                    # these should be pulled from the shapefile, but for now
+                    # just hardcode broad limits
+                    if (settings[name]>0.040) or (settings[name]<0.015):
+                        print(" [hit limit] ")
+                        break
+                    
+                    model=check_and_run_settings(settings)
+                    print_settings_and_score(settings,model)
+                    this_score=get_model_score(model)
+                    if this_score<best_score:
+                        print('----New best----')
+                        best_settings=settings
+                        best_score=this_score
+                        accepted_new=True
+                        continue # try again
+                    else:
+                        break
+        if not accepted_new:
             print('Converged')
             break
 

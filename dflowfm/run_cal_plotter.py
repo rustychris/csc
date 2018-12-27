@@ -5,7 +5,7 @@ import six
 import logging
 import numpy as np
 import stompy.model.delft.dflow_model as dfm
-from stompy.plot import plot_wkb
+from stompy.plot import plot_wkb, plot_utils
 from stompy import utils
 import stompy.grid.unstructured_grid as ugrid
 
@@ -308,7 +308,7 @@ def make_flux_figures(model,mr):
 # Summary map figures
 def make_summary_map(model,mr):
     poly=model.grid.boundary_polygon()
-
+    his_file=model.his_output()
     fig=plt.figure(10)
     fig.set_size_inches((6,9),forward=True)
     fig.clf()
@@ -316,7 +316,7 @@ def make_summary_map(model,mr):
     ax.xaxis.set_visible(0)
     ax.yaxis.set_visible(0)
 
-    plot_wkb.plot_wkb(poly,ax=ax,fc='none',ec='0.5',lw=0.8)
+    plot_wkb.plot_wkb(poly,ax=ax,fc='0.75',ec='0.75',lw=0.8)
     ax.axis('equal')
 
     for station in stations:
@@ -350,7 +350,9 @@ def make_summary_map(model,mr):
                 **kw)
 
     ax.axis( (605686., 639321., 4211471, 4267529))
-    fig.savefig(os.path.join(plot_dir,'amp_phase_map.png'))
+    plot_utils.reduce_text_overlap(ax)
+    fig.savefig(os.path.join(plot_dir,'amp_phase_map.png'),dpi=120)
+    return fig
 
 ##
 
@@ -512,9 +514,9 @@ if __name__=='__main__':
         station[1]['plot_dir']=plot_dir
 
     plt.ioff()
+    make_summary_map(model,mr)
     make_time_series_figures(model,mr)
     make_flux_figures(model,mr)
-    make_summary_map(model,mr)
     make_phase_figure(model,mr)
     plt.ion()
     
