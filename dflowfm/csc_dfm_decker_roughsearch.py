@@ -236,42 +236,44 @@ def settings_to_txt(settings):
         lines.append("settings['%s']=%r"%(n,settings[n]))
     return "\n".join(lines)
 
-def check_and_run_settings(settings):
+def check_and_run_settings(settings,retries=4):
     key=memoize.memoize_key(**settings)
     run_dir=os.path.join(run_coll_dir,key)
-
-    # really should add a method to model.
+    
     if dfm.DFlowModel.run_completed(run_dir):
-        print("%s exists -- will skip"%run_dir)
+        # print("%s exists -- will skip"%run_dir)
         return dfm.DFlowModel.load(run_dir)
 
-    #os.path.exists(os.path.join(run_dir,'DFM_OUTPUT_flowfm')):
-    
-    print("running in %s"%run_dir)
+    for retry in range(retries):
+        print("running in %s"%run_dir)
 
-    model=dfm.DFlowModel()
-    model.set_run_dir(run_dir, mode='pristine')
-    base_config(model)
-    
-    txt_fn=os.path.join(run_dir,"settings.txt")
-    with open(txt_fn,'wt') as fp:
-        fp.write( settings_to_txt(settings) )
-    with open(txt_fn,'rt') as fp:
-        print(fp.read())
-    print("-"*20)
-    
-    xyz=settings_to_roughness_xyz(model,settings)
-    # Turn that into a DataArray
-    da=xr.DataArray( xyz[:,2],dims=['location'],name='n' )
-    da=da.assign_coords(x=xr.DataArray(xyz[:,0],dims='location'),
-                        y=xr.DataArray(xyz[:,1],dims='location'))
-    da.attrs['long_name']='Manning n'
+        model=dfm.DFlowModel()
+        model.set_run_dir(run_dir, mode='pristine')
+        base_config(model)
 
-    model.add_RoughnessBC(data_array=da)
-    
-    model.write()
-    model.partition()
-    model.run_model()
+        txt_fn=os.path.join(run_dir,"settings.txt")
+        with open(txt_fn,'wt') as fp:
+            fp.write( settings_to_txt(settings) )
+        with open(txt_fn,'rt') as fp:
+            print(fp.read())
+        print("-"*20)
+
+        xyz=settings_to_roughness_xyz(model,settings)
+        # Turn that into a DataArray
+        da=xr.DataArray( xyz[:,2],dims=['location'],name='n' )
+        da=da.assign_coords(x=xr.DataArray(xyz[:,0],dims='location'),
+                            y=xr.DataArray(xyz[:,1],dims='location'))
+        da.attrs['long_name']='Manning n'
+
+        model.add_RoughnessBC(data_array=da)
+
+        model.write()
+        model.partition()
+        model.run_model()
+        if model.is_completed():
+            break
+    else:
+        print("looks like that didn't finish")
     return model
     
 ##---
@@ -326,7 +328,19 @@ def get_model_metrics(model):
 
 def get_model_score(model):
     metrics=get_model_metrics(model)
-    return np.mean((1-metrics['skill'].values)**2)
+    return metrics_to_score(metrics)
+
+def metrics_to_score(metrics):
+    # Easiest is to use skill, but it gets less sensitive as
+    # you get close, and doesn't really penalize a 20 minute lag
+    # return np.mean((1-metrics['skill'].values)**2)
+
+    # Try a more explicit amplitude and lag metric
+    # mean square minutes error
+    lag_cost=((metrics['lag'].values*24*60)**2).mean()
+    # mean square pct error, normalized to 2%
+    amp_cost=(((metrics['ratio'].values-1.0)/0.02)**2).mean()
+    return lag_cost+amp_cost
     
 ##
 
@@ -339,44 +353,44 @@ def optimize():
     # the starting point
     best_settings=baseline_settings()
 
-    while 1:
-        accepted_new=False
-        
-        for name in regions['name']:
-            print("Optimizing %s"%name)
-            # baseline score before changing this parameter
-            model=check_and_run_settings(best_settings)
-            print_settings_and_score(best_settings,model)
-            
-            # best of this iteration
-            best_score=init_score=get_model_score(model)
+    for abs_delta in 0.005,0.0025:
+        while 1:
+            accepted_new=False
+            for name in regions['name']:
+                print("Optimizing %s, accepted_new=%s"%(name,accepted_new))
+                # baseline score before changing this parameter
+                model=check_and_run_settings(best_settings)
+                # print_settings_and_score(best_settings,model)
 
-            # try increasing, then decreasing
-            for delta_n in [0.005,-0.005]:
-                # try increasing this region's roughness
-                while 1:
-                    settings=dict(best_settings) # copy
-                    settings[name]+=delta_n # step
-                    # these should be pulled from the shapefile, but for now
-                    # just hardcode broad limits
-                    if (settings[name]>0.040) or (settings[name]<0.015):
-                        print(" [hit limit] ")
-                        break
-                    
-                    model=check_and_run_settings(settings)
-                    print_settings_and_score(settings,model)
-                    this_score=get_model_score(model)
-                    if this_score<best_score:
-                        print('----New best----')
-                        best_settings=settings
-                        best_score=this_score
-                        accepted_new=True
-                        continue # try again
-                    else:
-                        break
-        if not accepted_new:
-            print('Converged')
-            break
+                # best of this iteration
+                best_score=init_score=get_model_score(model)
+
+                # try increasing, then decreasing
+                for delta_n in [abs_delta,-abs_delta]:
+                    # try increasing this region's roughness
+                    while 1:
+                        settings=dict(best_settings) # copy
+                        settings[name]+=delta_n # step
+                        # these should be pulled from the shapefile, but for now
+                        # just hardcode broad limits
+                        if (settings[name]>0.040) or (settings[name]<0.015):
+                            print(" [hit limit] ")
+                            break
+
+                        model=check_and_run_settings(settings)
+                        # print_settings_and_score(settings,model)
+                        this_score=get_model_score(model)
+                        if this_score<best_score:
+                            print('----New best----  %.5f => %.5f'%(best_score,this_score))
+                            best_settings=settings
+                            best_score=this_score
+                            accepted_new=True
+                            continue # try again
+                        else:
+                            break
+            if not accepted_new:
+                print("Converged at abs_delta=%.5f"%abs_delta)
+                break
 
 
 def print_best():
@@ -384,7 +398,7 @@ def print_best():
     scores=[]
     for metrics_fn in metrics_fns:
         metrics=pd.read_csv(metrics_fn)
-        score=np.mean((1-metrics['skill'].values)**2)
+        score=metrics_to_score(metrics)
         scores.append(score)
 
     order=np.argsort(scores)
