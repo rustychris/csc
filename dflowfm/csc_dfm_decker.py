@@ -33,24 +33,16 @@ cache_dir='cache'
 
 ## --------------------------------------------------
 
-six.moves.reload_module(dfm_grid)
-six.moves.reload_module(dfm)
-six.moves.reload_module(dio)
-six.moves.reload_module(barker_data)
-six.moves.reload_module(nwis_bc)
 import local_config
 local_config.install()
 
 model=dfm.DFlowModel()
 
-
-# Having issues with 53925-opt, and 52184-dbg, both
-# with MPI.  Looks like dwaq output is not compatible
-# with ugrid+mpi.
 model.num_procs=4
-model.z_datum='NAVD88'
+model.z_datum='NAVD88' # not really used right now.
 model.projection='EPSG:26910'
-model.utc_offset=np.timedelta64(-8,'h') # PST
+# Forcing data is fetched as UTC, and adjusted according to this offset
+model.utc_offset=np.timedelta64(-8,'h') # PST.  
 
 # Parameters to control more specific aspects of the run
 # grid100_00: First run with post-restoration grid, new features in HydroModel.
@@ -86,10 +78,11 @@ model.utc_offset=np.timedelta64(-8,'h') # PST
 #        _20: switch to bedlevtype=6
 #        _21: and use adjusted node elevations
 #        _22: simpler adjustment just to get nodes to reflect means
-model.set_run_dir("runs/grid100_22", mode='askclobber')
+#        _23: bringing back the settings from roughsearch
+#        _24: add extra section on Liberty Cut, fix LIS BC, and add channel
+#             up to LIY in the DEM.
+model.set_run_dir("runs/grid100_24", mode='askclobber')
 
-#model.run_start=np.datetime64('2018-08-01')
-#model.run_stop=np.datetime64('2018-09-01')
 model.run_start=np.datetime64('2017-12-01')
 model.run_stop=np.datetime64('2017-12-10')
 
@@ -97,7 +90,7 @@ model.load_mdu('template.mdu')
 
 src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
 dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
-bathy_fn="../bathy/merged_2m-20181113.tif"
+bathy_fn="../bathy/merged_2m-20190122.tif"
 if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
     g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
     dem=field.GdalGrid(bathy_fn)
@@ -135,20 +128,23 @@ model.mdu['physics','UnifFrictCoef']= 0.023
 # fail out when it goes unstable.
 model.mdu['numerics','MinTimestepBreak']=0.05
 
-model.set_cache_dir('cache')
+# Make sure cache dir exists
+os.path.exists(cache_dir) or os.makedirs(cache_dir)
 
+
+# -- Boundary Conditions --
+
+# Register linear and point feature shapefiles
 model.add_gazetteer('gis/model-features.shp')
 model.add_gazetteer('gis/point-features.shp')
 
+# All sources and flow BCs will be dredge to this depth to make
+# they remain wet and active.
 dfm.SourceSinkBC.dredge_depth=-1
 dfm.FlowBC.dredge_depth=-1
 
 # check_bspp.py has the code that converted original tim to csv.
-# awkward reloading of that, but at least it's independent of the
-# simulation period.
 model.add_bcs(barker_data.BarkerPumpsBC(name='Barker_Pumping_Plant'))
-
-six.moves.reload_module(nwis_bc)
 
 # Decker only exists post-2015
 if model.run_start>np.datetime64("2015-11-16"):
@@ -156,6 +152,7 @@ if model.run_start>np.datetime64("2015-11-16"):
 else:
     # maybe fall back to Rio Vista, or some adjustment thereof
     raise Exception("Decker tidal data starts 2015-11-16, too late for this simulation period")
+
 # unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
 # and the test period shows slightly negative means, so it's possible that it is
 # correct.
@@ -166,44 +163,21 @@ model.add_bcs(nwis_bc.NwisFlowBC(name='threemile',station=11337080,cache_dir='ca
 model.add_bcs(nwis_bc.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
                                  filters=[dfm.Transform(lambda x: -x)] ))
 
-class FillGaps(dfm.BCFilter):
-    max_gap_interp_s=2*60*60
-    large_gap_value=0.0
-    
-    def transform_output(self,da):
-        # have self.bc, self.bc.model
-        # self.bc.data_start, self.bc.data_stop
-        if len(da)==0:
-            log.warning("FillGaps called with no input data")
-            da=xr.DataArray(self.large_gap_value)
-            return da
-        log.warning("FillGaps code incomplete")
-        return da
-
 model.add_bcs(nwis_bc.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
-                                 filters=[FillGaps(),
+                                 filters=[dfm.FillGaps(large_gap_value=0.0),
                                           dfm.Transform(lambda x: -x)] ) )
 
+# moving Sac flows upstream and removing tides.
 sac=nwis_bc.NwisFlowBC(name="SacramentoRiver",station=11447650,
                        pad=np.timedelta64(5,'D'),cache_dir='cache',
                        filters=[dfm.LowpassGodin(),
                                 dfm.Lag(np.timedelta64(-2*3600,'s'))])
 model.add_bcs(sac)
 
-## 
-from stompy.io.local import cdec
-pad=np.timedelta64(5,'D')
-lisbon_ds=cdec.cdec_dataset(station='LIS',
-                            start_date=model.run_start-pad, end_date=model.run_stop+pad,
-                            sensor=20, cache_dir=cache_dir)
-# to m3/s
-lisbon_ds['Q']=lisbon_ds['sensor0020'] * 0.028316847
-# to hourly average
-lisbon_ds.groupby( lisbon_ds.time.astype('M8[h]')).mean()
-lisbon_bc=dfm.FlowBC(name='lis',Q=lisbon_ds.Q)
+lisbon_bc=dfm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'))
+model.add_bcs(lisbon_bc)
 
-## 
-if 0: # don't have wind data for newer period
+if 0: # not including wind right now
     # Try file pass through for forcing data:
     windxy=model.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
     windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
@@ -213,6 +187,29 @@ if 0: # don't have wind data for newer period
 # Roughness 
 # model.add_RoughnessBC(shapefile='forcing-data/manning_slick_sac.shp')
 # model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')
+if 1:
+    import csc_dfm_decker_roughsearch as rs
+    # These are setting that came out of the optimization
+    settings={}
+    settings['cache']=0.04
+    settings['dws']=0.025
+    settings['elk']=0.015
+    settings['fpt_to_dcc']=0.030
+    settings['lindsey']=0.04
+    settings['miner']=0.035
+    settings['rio_vista']=0.025
+    settings['sac_below_ges']=0.0225
+    settings['steamboat']=0.025
+    settings['toe']=0.0375
+    settings['upper_sac']=0.0175
+    xyn=rs.settings_to_roughness_xyz(model,settings)
+    # Turn that into a DataArray
+    da=xr.DataArray( xyn[:,2],dims=['location'],name='n' )
+    da=da.assign_coords(x=xr.DataArray(xyn[:,0],dims='location'),
+                        y=xr.DataArray(xyn[:,1],dims='location'))
+    da.attrs['long_name']='Manning n'
+    rough_bc=dfm.RoughnessBC(data_array=da)
+    model.add_bcs(rough_bc)
 
 # Culvert at CCS
 if 1:
@@ -237,17 +234,21 @@ if 1:
                                 sill_level=3.5,
                                 horizontal_opening_direction = 'symmetric')
 
+# -- Extract locations for sections and monitor points
 mon_sections=model.match_gazetteer(monitor=1,geom_type='LineString')
 mon_points  =model.match_gazetteer(geom_type='Point')
 model.add_monitor_sections(mon_sections)
 model.add_monitor_points(mon_points)
 
-## 
 if 1:
+    # experimental saving of BC data to html plots
     for bc in model.bcs:
         bc.write_bokeh(path=model.run_dir)
 
 ##
+
+# if not invoked directly, just set up the model and let
+# the importer decide what to do with model.
 
 if __name__=='__main__':
     model.write()
@@ -263,8 +264,3 @@ if __name__=='__main__':
 
     model.run_model()
 
-# 2018-11-30
-# trying to understand whether the GES/DCC reach is correct
-#  GES: biased negative (floodward), in particular about 50 m3/s too strong on flood
-#        and slightly weak on ebb.  mean delta 24m3/s, 7 minute lag.
-#  the Georgiana flows oscillate between 50 and 100, presumably drawing water out.

@@ -26,11 +26,8 @@ dwr_dem_path="/home/rusty/data/bathy_dwr/gtiff"
 # Load grid to find minimal area to output
 from stompy.grid import unstructured_grid
 from stompy.model.delft import dfm_grid
-#g=dfm_grid.DFMGrid("../dflowfm/CacheSloughComplex_v95_bathy01_net.nc")
-# g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v97.grd")
-# g=unstructured_grid.UnTRIM08Grid("../grid/CacheSloughComplex_v98.grd")
-# g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v100-edit06.nc")
-g=unstructured_grid.UnstructuredGrid.from_ugrid("../grid/CacheSloughComplex_v108.nc")
+
+g=unstructured_grid.UnstructuredGrid.from_ugrid('../grid/CacheSloughComplex_v111-edit19fix.nc')
 
 poly=g.boundary_polygon()
 
@@ -121,7 +118,7 @@ def f(args):
 
 ##
 if 1: # __name__ == '__main__':
-    dem_dir="tiles_2m_20181113"
+    dem_dir="tiles_2m_20190122"
     os.path.exists(dem_dir) or os.mkdir(dem_dir)
 
     res=2.0
@@ -148,11 +145,11 @@ if 1: # __name__ == '__main__':
             f(call)
 
 
-# and then merge them with something like:
-# if the file exists, its extents will not be updated.
-output_fn='merged_2m-20181113.tif'
-os.path.exists(output_fn) and os.unlink(output_fn)
-subprocess.call("gdal_merge.py -init nan -a_nodata nan -o %s %s/*.tif"%(output_fn,dem_dir),
-                shell=True)
+            # and then merge them with something like:
+            # if the file exists, its extents will not be updated.
+    output_fn='merged_2m-20190122.tif'
+    os.path.exists(output_fn) and os.unlink(output_fn)
+    subprocess.call("gdal_merge.py -init nan -a_nodata nan -o %s %s/*.tif"%(output_fn,dem_dir),
+                    shell=True)
 
 

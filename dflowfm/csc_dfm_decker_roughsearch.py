@@ -38,12 +38,6 @@ cache_dir='cache'
 
 ## --------------------------------------------------
 
-six.moves.reload_module(dfm_grid)
-six.moves.reload_module(dfm)
-six.moves.reload_module(dio)
-six.moves.reload_module(barker_data)
-six.moves.reload_module(nwis_bc)
-
 # for DCC, when the gates are closed they sometimes do not report
 # flow, so here we will those gaps with 0.
 class FillGaps(dfm.BCFilter):

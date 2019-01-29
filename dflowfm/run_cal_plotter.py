@@ -41,6 +41,33 @@ defaults = {
 }
 
 stations = [
+    ('CourtlandToe',dict(var='flow',units='cfs',filename=csv('CourtToe-flow.csv'))),
+    ('CourtlandToe',dict(var='stage',units='ft',filename=csv('CourtToe-stage.csv'))),
+
+    ('HollandNBreach',dict(var='flow',units='cfs',filename=csv("HNB-flow.csv"))),
+    ('HollandNBreach',dict(var='stage',units='ft',filename=csv("HNB-stage.csv"))),
+    
+    ("ToeAtLiberty", dict(var='flow',units='cfs',filename=csv("LibertyToe-flow.csv"))),
+    ("ToeAtLiberty", dict(var='stage',units='ft',filename=csv("LibertyToe-stage.csv"))),
+
+    ("LibertyIslandCut", dict(var='flow',units='cfs',filename=csv("LIC-flow.csv"))),
+    ("LibertyIslandCut", dict(var='stage',units='ft',filename=csv("LIC-stage.csv"))),
+
+    # is this the correct one, rather than LiberyIslandCut?
+    ("Stairstep", dict(var='flow',units='cfs',filename=csv("LIC-flow.csv"))),
+
+    ("LibCutHolland", dict(var='flow',units='cfs',filename=csv("LIH-flow.csv"))),
+
+    ("WildlandsUpMarsh", dict(var='flow',units='cfs',filename=csv("WildlandsUpMarsh-flow.csv"))),
+
+    ("LIY", dict(var='stage',units='ft',filename=csv('LIY-stage.csv'))),
+
+    ("LIB", dict(var='flow',units='cfs',filename=csv("LIB-flow.csv"))),
+    ("LIB", dict(var='stage',units='ft',filename=csv("LIB-stage.csv"))),
+
+    ("MIR", dict(var='flow',units='cfs',filename=csv("MIR-flow.csv"))),
+    ("MIR", dict(var='stage',units='ft',filename=csv("MIR-stage.csv"))),
+    
     ('TSL',{'var':'flow','units':'cfs',
             'filename':csv('TSL-flow.csv')}),
     ('TSL',{'var':'stage','units':'ft',
@@ -87,7 +114,9 @@ stations = [
     ('FPX',{'var':'stage', 'units':'ft', 'filename':csv('FPX-stage.csv')}),
     # transposed station name?
     ('HBW',{'var':'stage', 'units':'ft', 'filename':csv('HWB-stage.csv')}),
-    ('LIS',{'var':'stage', 'units':'ft', 'filename':csv('LIS-stage-WY2014.csv')}),
+
+    ('LIS',{'var':'flow', 'units':'cfs', 'filename':csv('LIS-flow.csv')}),
+
     ('RYI',{'var':'stage', 'units':'ft', 'filename':csv('RYI-stage.csv')}),
     ('SRV',{'var':'stage', 'units':'ft', 'filename':csv('SRV-stage.csv')}),
     ('SSS',{'var':'stage', 'units':'ft', 'filename':csv('SSS-stage.csv')}),

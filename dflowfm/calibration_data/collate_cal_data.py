@@ -11,9 +11,14 @@ import glob
 import os
 import pandas as pd
 import shutil
+from stompy import utils
+from stompy.io.local import cdec
+from stompy.io.local import usgs_nwis
 
 cache_dir="../cache"
 
+download_period=[np.datetime64("2014-03-01"),
+                 np.datetime64("2018-10-01")]
 
 ##
 
@@ -50,12 +55,6 @@ for fn in glob.glob(os.path.join( csc_stations_dir,"wsel","*.csv")):
 
 ##
 
-# USGS stations:
-download_period=[np.datetime64("2014-03-01"),
-                 np.datetime64("2018-10-01")]
-from stompy.io.local import usgs_nwis
-
-
 # USGS gauges with Flow and Stage:
 for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("FPX","11447650"),  # Sac River at Freeport
@@ -70,6 +69,10 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
                                 ("SDC","11447890"), # Sac above Delta Cross Channel
                                 ("CourtToe","11455167"), # Prospect Slough at Toe Drain near Courtland
                                 ("LibertyToe","11455140"), # Toe Drain at Liberty Island
+                                ("HNB","11455143"), # Little Holland North Breach, 2016-01 -- 2018-11
+                                ("LIC","382006121401601"), # Liberty Isl at Liberty Isl. Cut
+                                ("LIH","11455146"), # Liberty Cut at Little Holland
+                                ("WildlandsUpMarsh","381934121403201"), # Liberty Island, Wildlands, Up Marsh
                                 # no physical data until 2015-07:
                                 ("LIB","11455315"),  # Cache Slough A S Liberty Island Nr Rio Vista CA
                                 ("TSL","11337080"),  # Threemile slough near Rio Vista
@@ -103,23 +106,47 @@ for usgs_name,usgs_station in [ ("SRV","11455420"),  # Sac River at Rio Vista
 
 ##
 
-logging.warning("No timezone adjustments applied down here!  May need to go UTC=>PST")
+for cdec_station in ['LIS','LIY','MIR']:
+    for quant in ['flow','stage']:
+        fn="%s-%s.csv"%(cdec_station,quant)
+        if os.path.exists(fn): continue
+        if quant=='flow':
+            sensor=20
+            column='Flow'
+        elif quant=='stage':
+            sensor=1
+            column='Stage'
+        ds=cdec.cdec_dataset(cdec_station,
+                             start_date=download_period[0],
+                             end_date=download_period[1],
+                             sensor=sensor,cache_dir=cache_dir)
+        if ds is None:
+            print("No %s for %s"%(quant,cdec_station))
+            continue
+        # cdec module tries to output UTC, so go back to PST here.
+        ds.time.values -= np.timedelta64(8,'h')
+        ds=ds.rename({'sensor%04d'%sensor:column,
+                      'time':'Time'})
+            
+        df=ds.to_dataframe().reset_index()
+        df.to_csv(fn,columns=["Time",column],date_format="%Y-%m-%d %H:%M",index=False)
 
+##
 
-from stompy import utils
-# Fetch a year of stage data for Yolo Bypass near Lisbon.
-# the original file is put in cache_dir, from which
-lis_fn="LIS-stage-WY2014.csv"
-lis_orig_fn=os.path.join(cache_dir,'LIS-WY2014-STAGE_15-MINUTE_DATA_DATA.CSV')
-url="http://wdl.water.ca.gov/waterdatalibrary/docs/Hydstra/docs/B91560/2014/STAGE_15-MINUTE_DATA_DATA.CSV"
+if 0:    
+    # Fetch a year of stage data for Yolo Bypass near Lisbon.
+    # the original file is put in cache_dir, from which
+    lis_fn="LIS-stage-WY2014.csv"
+    lis_orig_fn=os.path.join(cache_dir,'LIS-WY2014-STAGE_15-MINUTE_DATA_DATA.CSV')
+    url="http://wdl.water.ca.gov/waterdatalibrary/docs/Hydstra/docs/B91560/2014/STAGE_15-MINUTE_DATA_DATA.CSV"
 
-# only fetch when necessary.
-if not os.path.exists(lis_fn):
-    if not os.path.exists(lis_orig_fn):
-        utils.download_url(url,lis_orig_fn,log=logging)
-    df=pd.read_csv(lis_orig_fn,skiprows=3,parse_dates=['Time'],infer_datetime_format=True,
-                   names=["Time","Stage","Quality","Comment"])
-    df.to_csv(lis_fn,columns=["Time","Stage"],date_format="%Y-%m-%d %H:%M",index=False)
+    # only fetch when necessary.
+    if not os.path.exists(lis_fn):
+        if not os.path.exists(lis_orig_fn):
+            utils.download_url(url,lis_orig_fn,log=logging)
+        df=pd.read_csv(lis_orig_fn,skiprows=3,parse_dates=['Time'],infer_datetime_format=True,
+                       names=["Time","Stage","Quality","Comment"])
+        df.to_csv(lis_fn,columns=["Time","Stage"],date_format="%Y-%m-%d %H:%M",index=False)
 
 
 ##
