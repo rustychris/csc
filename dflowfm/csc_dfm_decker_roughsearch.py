@@ -16,6 +16,7 @@ import logging
 import pandas as pd
 import xarray as xr
 import six
+from collections import OrderedDict
 
 from stompy import utils, filters
 import stompy.model.delft.io as dio
@@ -24,7 +25,8 @@ from stompy.model.delft import dfm_grid
 from stompy.grid import unstructured_grid
 from stompy.spatial import wkb2shp, field
 from stompy.io.local import cdec
-
+import local_config
+local_config.install()
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO)
@@ -60,7 +62,6 @@ def base_config(model):
     model: Model instance, should already have run_dir set.
 
     """
-    model.dfm_bin_dir="/home/rusty/src/dfm/r53925-opt/bin"
     model.num_procs=4
     model.z_datum='NAVD88'
     model.projection='EPSG:26910'
@@ -135,7 +136,7 @@ def base_config(model):
                                     dfm.Lag(np.timedelta64(-2*3600,'s'))])
     model.add_bcs(sac)
 
-    ## 
+    ##
     pad=np.timedelta64(5,'D')
     lisbon_ds=cdec.cdec_dataset(station='LIS',
                                 start_date=model.run_start-pad, end_date=model.run_stop+pad,
@@ -181,7 +182,7 @@ def base_config(model):
 ##
 
 
-run_coll_dir="runs/roughsearch"
+run_coll_dir=os.path.join(local_config.run_dir_root,"roughsearch")
 run_log_file=os.path.join(run_coll_dir,"runlog")
 
 if os.path.exists(run_log_file):
@@ -198,7 +199,7 @@ regions=wkb2shp.shp2geom('gis/roughness_regions.shp')
 # parameters for one run associate each region name with a roughness
 
 def baseline_settings():
-    settings={}
+    settings=OrderedDict()
     for region in regions:
         settings[region['name']]=region['n_nominal']
     return settings
@@ -221,7 +222,7 @@ def settings_to_roughness_xyz(model,settings):
 
 from stompy import memoize
 
-def settings_to_txt(settings):        
+def settings_to_txt(settings):
     names=list(settings.keys())
     names.sort()
 
@@ -230,10 +231,12 @@ def settings_to_txt(settings):
         lines.append("settings['%s']=%r"%(n,settings[n]))
     return "\n".join(lines)
 
-def check_and_run_settings(settings,retries=4):
-    key=memoize.memoize_key(**settings)
+def check_and_run_settings(settings,retries=1):
+    # don't pass as keyword argument, in case order is
+    # scrambled
+    key=memoize.memoize_key(settings=settings)
     run_dir=os.path.join(run_coll_dir,key)
-    
+
     if dfm.DFlowModel.run_completed(run_dir):
         # print("%s exists -- will skip"%run_dir)
         return dfm.DFlowModel.load(run_dir)
@@ -262,14 +265,16 @@ def check_and_run_settings(settings,retries=4):
         model.add_RoughnessBC(data_array=da)
 
         model.write()
+        print("---- About to partition----")
         model.partition()
+        print("---- About to run -----")
         model.run_model()
         if model.is_completed():
             break
     else:
         print("looks like that didn't finish")
     return model
-    
+
 ##---
 
 # define a cost function for a run
@@ -335,7 +340,7 @@ def metrics_to_score(metrics):
     # mean square pct error, normalized to 2%
     amp_cost=(((metrics['ratio'].values-1.0)/0.02)**2).mean()
     return lag_cost+amp_cost
-    
+
 ##
 
 def print_settings_and_score(settings,model):
@@ -398,7 +403,7 @@ def print_best():
     order=np.argsort(scores)
     for i in order:
         print("%s: %.5f"%(metrics_fns[i],scores[i]))
-    
+
 
 if __name__=='__main__':
     import argparse
@@ -413,5 +418,5 @@ if __name__=='__main__':
         optimize()
     elif args.print:
         print_best()
-    else:  
+    else:
         parser.print_help()
