@@ -7,10 +7,8 @@ for Cache Slough Complex
 """
 
 import os
-import shutil
 import numpy as np
 import logging
-import pandas as pd
 import xarray as xr
 import six
 
@@ -44,49 +42,17 @@ model.projection='EPSG:26910'
 # Forcing data is fetched as UTC, and adjusted according to this offset
 model.utc_offset=np.timedelta64(-8,'h') # PST.  
 
-# Parameters to control more specific aspects of the run
-# grid100_00: First run with post-restoration grid, new features in HydroModel.
-#   Fix timezone, previous run looks about 8h ahead.  Running again.
+model.set_run_dir("runs/val-201404_v00", mode='askclobber')
 
-# grid100_01: bedlevtyp=3, conveyance2d=3, nonlin2d=1
-# grid100_02: fix sign for DCC and Georgiana flows.
-#        _03: conveyanced2d=2.  Basically same results, and 80% faster.
-# grid100_04: bedlevtyp=3, conveyance2d=1, nonlin2d=0
-# grid100_05: bedlevtyp=3, conveyance2d=0, nonlin2d=0
-# grid100_06: bedlevtyp=3, conveyance2d=2, nonlin2d=0
-#          drop the roughness shapefile, set global 0.025
-# grid100_07: back to same settings as _03, but with new grid that
-#      slims DWS and parts of DWB (Miner slough?)
-#        _08: fix some bathy, add sections.
-#        _09: more sections, dial down DWS friction to 0.02, dial up friction
-#             north of Sutter
-#        _10: new bit of stairstep grid, more sections, increase friction in
-#             SUT, HWB, SSS
-#        _11: even lower friction on DWS
-#        _12: revert friction on DWS, bump up friction on dead-end north of SUT,
-#             and drop friction on lower sac to match rest of sac.
-#        _13: return to Thomas' roughness for a reality check.
-#        _14: run a December 2017 period, see if phasing is better when DCC is closed.
-#        _15: same, but flip TSL to see if it makes a difference in cal.
-#        _16: try nonlin2d, and revert to constant n=0.023 roughness
-#        _17: for apples-to-apples, same as 16 but nonlin2d=0
-#        _18: keep nonlin2d=0, and bring in updated grid with doubled shorelines for
-#             Sac and DWS
-#        _19: hmm - step back to conveyance2d=-1
-#             amplitudes are down, and lags are crazy bad at fpt. can looker closer, but this
-#             seems much worse.
-#        _20: switch to bedlevtype=6
-#        _21: and use adjusted node elevations
-#        _22: simpler adjustment just to get nodes to reflect means
-#        _23: bringing back the settings from roughsearch
-#        _24: add extra section on Liberty Cut, fix LIS BC, and add channel
-#             up to LIY in the DEM.
-model.set_run_dir("runs/grid100_24", mode='askclobber')
-
-model.run_start=np.datetime64('2017-12-01')
-model.run_stop=np.datetime64('2017-12-10')
+model.run_start=np.datetime64('2014-03-25')
+model.run_stop=np.datetime64('2014-05-01')
 
 model.load_mdu('template.mdu')
+
+# Register linear and point feature shapefiles
+model.add_gazetteer('gis/model-features.shp')
+model.add_gazetteer('gis/point-features.shp')
+
 
 src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
 dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
@@ -109,18 +75,30 @@ if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
     g.write_ugrid(dst_grid,overwrite=True)
 else:
     g=unstructured_grid.UnstructuredGrid.from_ugrid(dst_grid)
+
+tidal_bc_location='decker'
+
+if model.run_start < np.datetime64("2016-05-01"):
+    tidal_bc_location='riovista'
+
+if tidal_bc_location=='riovista':
+    # truncate domain:
+    srv_line=model.get_geometry(name='SRV',geom_type='LineString')
+    to_keep=g.select_cells_by_cut(srv_line)
+    for c in np.nonzero(~to_keep)[0]:
+        g.delete_cell(c)
+    g.delete_orphan_edges()
+    g.delete_orphan_nodes()
+    g.renumber()
+
+
+##    
+    
 model.set_grid(g)
 
-# I think this doesn't matter with conveyance2d>0
 # 6 is maybe better for getting good edges
 model.mdu['geometry','BedlevType']=6
-# ostensibly analytic 2D conveyance with 3.
-# 2 is faster, and appears less twitchy while showing very similar
-#  calibration results.
-# 0 blocks some flow, 1 was a little twitchy.
 model.mdu['geometry','Conveyance2D']=-1
-# enabling this seems to cause a lot of oscillation.
-# but it may be necessary to get good prism on the narrow channels.
 model.mdu['geometry','Nonlin2D']=0
 
 model.mdu['output','MapInterval']=7200
@@ -134,11 +112,7 @@ os.path.exists(cache_dir) or os.makedirs(cache_dir)
 
 # -- Boundary Conditions --
 
-# Register linear and point feature shapefiles
-model.add_gazetteer('gis/model-features.shp')
-model.add_gazetteer('gis/point-features.shp')
-
-# All sources and flow BCs will be dredge to this depth to make
+# All sources and flow BCs will be dredged to this depth to make
 # they remain wet and active.
 dfm.SourceSinkBC.dredge_depth=-1
 dfm.FlowBC.dredge_depth=-1
@@ -146,12 +120,13 @@ dfm.FlowBC.dredge_depth=-1
 # check_bspp.py has the code that converted original tim to csv.
 model.add_bcs(barker_data.BarkerPumpsBC(name='Barker_Pumping_Plant'))
 
-# Decker only exists post-2015
-if model.run_start>np.datetime64("2015-11-16"):
+if tidal_bc_location=='decker':
+    # Decker only exists post-2015
     model.add_bcs(nwis_bc.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
+elif tidal_bc_location=='riovista':
+    model.add_bcs(nwis_bc.NwisStageBC(name='SRV',station=11455420,cache_dir='cache'))
 else:
-    # maybe fall back to Rio Vista, or some adjustment thereof
-    raise Exception("Decker tidal data starts 2015-11-16, too late for this simulation period")
+    raise Exception("Bad value for tidal_bc_location: %s"%tidal_bc_location)
 
 # unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
 # and the test period shows slightly negative means, so it's possible that it is
@@ -251,6 +226,7 @@ if 1:
 # the importer decide what to do with model.
 
 if __name__=='__main__':
+    import shutil
     model.write()
     model.partition()
     try:
