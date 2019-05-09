@@ -24,8 +24,8 @@ if sys.platform=='win32':
     # tries to get network access.
     mpi_args=["-localonly"]
 else:
-    dfm_bin_dir=os.path.join(os.environ['HOME'],
-                             "src/dfm/r53925-opt/bin")
+    dfm_bin_dir="/home/rusty/src/dfm/1.5.1/lnx64/bin/"
+    os.environ['LD_LIBRARY_PATH']="/home/rusty/src/dfm/1.5.1/lnx64/lib/"
     share_bin_dir=dfm_bin_dir
     run_dir_root="runs"
 

@@ -278,9 +278,9 @@ def check_and_run_settings(settings,retries=1):
 ##---
 
 # define a cost function for a run
-import run_cal_plotter
 
 def calc_model_metrics(model):
+    import run_cal_plotter
     his_file=model.his_output()
     mr = run_cal_plotter.hcp.DflowfmModelResults([his_file],trim_spinup_days=1.0)
 

@@ -36,7 +36,7 @@ local_config.install()
 
 model=dfm.DFlowModel()
 
-model.num_procs=4
+model.num_procs=12
 model.z_datum='NAVD88' # not really used right now.
 model.projection='EPSG:26910'
 # Forcing data is fetched as UTC, and adjusted according to this offset
@@ -57,7 +57,7 @@ model.add_gazetteer('gis/point-features.shp')
 src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
 dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
 bathy_fn="../bathy/merged_2m-20190122.tif"
-if utils.is_stale(dst_grid,[src_grid,bathy_fn]):
+if utils.is_stale(dst_grid,[src_grid,bathy_fn],ignore_missing=True):
     g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
     dem=field.GdalGrid(bathy_fn)
     if 0:
@@ -128,12 +128,14 @@ elif tidal_bc_location=='riovista':
 else:
     raise Exception("Bad value for tidal_bc_location: %s"%tidal_bc_location)
 
-# unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
-# and the test period shows slightly negative means, so it's possible that it is
-# correct.
-# flipping this did improve a lot of phases, but stage at TSL is much worse, and
-# my best reading of the metadata is that it should not be flipped.
-model.add_bcs(nwis_bc.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
+if tidal_bc_location=='decker':
+    # unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
+    # and the test period shows slightly negative means, so it's possible that it is
+    # correct.
+    # flipping this did improve a lot of phases, but stage at TSL is much worse, and
+    # my best reading of the metadata is that it should not be flipped.
+    model.add_bcs(nwis_bc.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
+    
 # GSS: from compare_flows and lit, must be flipped.
 model.add_bcs(nwis_bc.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
                                  filters=[dfm.Transform(lambda x: -x)] ))
