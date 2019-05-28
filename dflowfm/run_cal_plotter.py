@@ -13,11 +13,7 @@ import stompy.grid.unstructured_grid as ugrid
 utils.path("/home/rusty/src/hydro")
 
 import matplotlib.pyplot as plt
-import Plotting.hydro_cal_plotter as hcp
-#import Plotting.hydro_model_results as hmr
-#six.moves.reload_module(hmr) # for dev
-#six.moves.reload_module(hcp)
-
+import hydro.plotting.hydro_cal_plotter as hcp
 
 plot_dir="NOT_SET_YET" # gets set at the end.
 
@@ -517,7 +513,7 @@ def make_time_series_figures(model,mr):
     
 ##
 
-fig_version="20181116"
+fig_version="20190430"
 
 if __name__=='__main__':
     import argparse
