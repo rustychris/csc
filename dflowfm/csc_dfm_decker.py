@@ -42,7 +42,9 @@ model.projection='EPSG:26910'
 # Forcing data is fetched as UTC, and adjusted according to this offset
 model.utc_offset=np.timedelta64(-8,'h') # PST.  
 
-model.set_run_dir("runs/val-201404_v00", mode='askclobber')
+# v00: pre-restoration period with post-restoration grid
+# v01: use pre-restoration bathy
+model.set_run_dir("runs/val-201404_v01", mode='askclobber')
 
 model.run_start=np.datetime64('2014-03-25')
 model.run_stop=np.datetime64('2014-05-01')
@@ -53,24 +55,21 @@ model.load_mdu('template.mdu')
 model.add_gazetteer('gis/model-features.shp')
 model.add_gazetteer('gis/point-features.shp')
 
+ccs_pre_restoration=model.run_start < np.datetime64("2014-11-01")
 
 src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
-dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
-bathy_fn="../bathy/merged_2m-20190122.tif"
+if ccs_pre_restoration:
+    bathy_fn="../bathy/merged_2m-20181005.tif"
+    dst_grid=os.path.basename(src_grid).replace('.nc','-pre-bathy.nc')
+else:    
+    bathy_fn="../bathy/merged_2m-20190122.tif"
+    dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
+    
 if utils.is_stale(dst_grid,[src_grid,bathy_fn],ignore_missing=True):
     g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
     dem=field.GdalGrid(bathy_fn)
-    if 0:
-        node_depths=dem(g.nodes['x'])
-        while np.any(np.isnan(node_depths)):
-            missing=np.nonzero(np.isnan(node_depths))[0]
-            print("Looping to fill in %d missing node depths"%len(missing))
-            for n in missing:
-                nbrs=g.node_to_nodes(n)
-                node_depths[n]=np.nanmean(node_depths[nbrs])
-    else:
-        import dem_cell_node_bathy
-        node_depths=dem_cell_node_bathy.dem_to_cell_node_bathy(dem,g)
+    import dem_cell_node_bathy
+    node_depths=dem_cell_node_bathy.dem_to_cell_node_bathy(dem,g)
     g.add_node_field('depth',node_depths,on_exists='overwrite')
     g.write_ugrid(dst_grid,overwrite=True)
 else:
@@ -189,28 +188,31 @@ if 1:
     model.add_bcs(rough_bc)
 
 # Culvert at CCS
-if 1:
-    # rough accounting of restoration
-    if model.run_start < np.datetime64("2014-11-01"):
-        # name => id
-        # polylinefile is filled in from shapefile and name
-        model.add_Structure(name='ccs_breach',
+# rough accounting of restoration
+if ccs_pre_restoration:
+    # name => id
+    # polylinefile is filled in from shapefile and name
+    model.add_Structure(name='ccs_breach',
+                        type='gate',
+                        door_height=15, # no overtopping?
+                        lower_edge_level=0.89,
+                        # in release 1.5.2, this needs to be nonzero.  Could use
+                        # width of 0.0 in some older versions, but no longer.
+                        opening_width=1.0,
+                        sill_level=0.85, # gives us a 0.05m opening?
+                        horizontal_opening_direction = 'symmetric')
+    # these are really just closed
+    for levee_name in ['ccs_west','ccs_east']:
+        model.add_Structure(name=levee_name,
                             type='gate',
-                            door_height=15, # no overtopping?
-                            lower_edge_level=0.89,
-                            opening_width=0.0, # pretty sure this is ignored.
-                            sill_level=0.85, # gives us a 0.05m opening?
+                            door_height=15,
+                            lower_edge_level=3.5,
+                            opening_width=0.0,
+                            sill_level=3.5,
                             horizontal_opening_direction = 'symmetric')
-        # these are really just closed
-        for levee_name in ['ccs_west','ccs_east']:
-            model.add_Structure(name=levee_name,
-                                type='gate',
-                                door_height=15,
-                                lower_edge_level=3.5,
-                                opening_width=0.0,
-                                sill_level=3.5,
-                                horizontal_opening_direction = 'symmetric')
 
+
+        
 # -- Extract locations for sections and monitor points
 mon_sections=model.match_gazetteer(monitor=1,geom_type='LineString')
 mon_points  =model.match_gazetteer(geom_type='Point')
