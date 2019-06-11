@@ -25,7 +25,7 @@ if __name__=='__main__':
 log=logging.getLogger('csc_dfm')
 
 import barker_data
-import nwis_bc
+
 import stompy.model.delft.dflow_model as dfm
 cache_dir='cache'
 
@@ -42,10 +42,13 @@ model.projection='EPSG:26910'
 # Forcing data is fetched as UTC, and adjusted according to this offset
 model.utc_offset=np.timedelta64(-8,'h') # PST.  
 
-model.set_run_dir("runs/val-201404_v00", mode='askclobber')
+# v00: pre-restoration period with post-restoration grid
+# v01: use pre-restoration bathy
+# v02: tuned CCS culvert
+model.set_run_dir("runs/val-201404_v02", mode='pristine')
 
 model.run_start=np.datetime64('2014-03-25')
-model.run_stop=np.datetime64('2014-05-01')
+model.run_stop=np.datetime64('2014-04-30')
 
 model.load_mdu('template.mdu')
 
@@ -53,24 +56,21 @@ model.load_mdu('template.mdu')
 model.add_gazetteer('gis/model-features.shp')
 model.add_gazetteer('gis/point-features.shp')
 
+ccs_pre_restoration=model.run_start < np.datetime64("2014-11-01")
 
 src_grid='../grid/CacheSloughComplex_v111-edit19fix.nc'
-dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
-bathy_fn="../bathy/merged_2m-20190122.tif"
+if ccs_pre_restoration:
+    bathy_fn="../bathy/merged-20190530-pre_calhoun.tif"
+    dst_grid=os.path.basename(src_grid).replace('.nc','-pre-bathy.nc')
+else:    
+    bathy_fn="../bathy/merged_2m-20190122.tif"
+    dst_grid=os.path.basename(src_grid).replace('.nc','-bathy.nc')
+    
 if utils.is_stale(dst_grid,[src_grid,bathy_fn],ignore_missing=True):
     g=unstructured_grid.UnstructuredGrid.from_ugrid(src_grid)
     dem=field.GdalGrid(bathy_fn)
-    if 0:
-        node_depths=dem(g.nodes['x'])
-        while np.any(np.isnan(node_depths)):
-            missing=np.nonzero(np.isnan(node_depths))[0]
-            print("Looping to fill in %d missing node depths"%len(missing))
-            for n in missing:
-                nbrs=g.node_to_nodes(n)
-                node_depths[n]=np.nanmean(node_depths[nbrs])
-    else:
-        import dem_cell_node_bathy
-        node_depths=dem_cell_node_bathy.dem_to_cell_node_bathy(dem,g)
+    import dem_cell_node_bathy
+    node_depths=dem_cell_node_bathy.dem_to_cell_node_bathy(dem,g)
     g.add_node_field('depth',node_depths,on_exists='overwrite')
     g.write_ugrid(dst_grid,overwrite=True)
 else:
@@ -101,10 +101,12 @@ model.mdu['geometry','BedlevType']=6
 model.mdu['geometry','Conveyance2D']=-1
 model.mdu['geometry','Nonlin2D']=0
 
-model.mdu['output','MapInterval']=7200
 model.mdu['physics','UnifFrictCoef']= 0.023
 # fail out when it goes unstable.
 model.mdu['numerics','MinTimestepBreak']=0.05
+# For PTM usage
+model.mdu['output','WaqInterval']=1800 
+model.mdu['output','MapInterval']=1800
 
 # Make sure cache dir exists
 os.path.exists(cache_dir) or os.makedirs(cache_dir)
@@ -122,9 +124,9 @@ model.add_bcs(barker_data.BarkerPumpsBC(name='Barker_Pumping_Plant'))
 
 if tidal_bc_location=='decker':
     # Decker only exists post-2015
-    model.add_bcs(nwis_bc.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
+    model.add_bcs(dfm.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
 elif tidal_bc_location=='riovista':
-    model.add_bcs(nwis_bc.NwisStageBC(name='SRV',station=11455420,cache_dir='cache'))
+    model.add_bcs(dfm.NwisStageBC(name='SRV',station=11455420,cache_dir='cache'))
 else:
     raise Exception("Bad value for tidal_bc_location: %s"%tidal_bc_location)
 
@@ -134,25 +136,29 @@ if tidal_bc_location=='decker':
     # correct.
     # flipping this did improve a lot of phases, but stage at TSL is much worse, and
     # my best reading of the metadata is that it should not be flipped.
-    model.add_bcs(nwis_bc.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
+    model.add_bcs(dfm.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
     
 # GSS: from compare_flows and lit, must be flipped.
-model.add_bcs(nwis_bc.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
+model.add_bcs(dfm.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
                                  filters=[dfm.Transform(lambda x: -x)] ))
 
-model.add_bcs(nwis_bc.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
-                                 filters=[dfm.FillGaps(large_gap_value=0.0),
-                                          dfm.Transform(lambda x: -x)] ) )
+model.add_bcs(dfm.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
+                             default=0.0,
+                             filters=[dfm.FillGaps(large_gap_value=0.0),
+                                      dfm.Transform(lambda x: -x)] ) )
 
 # moving Sac flows upstream and removing tides.
-sac=nwis_bc.NwisFlowBC(name="SacramentoRiver",station=11447650,
-                       pad=np.timedelta64(5,'D'),cache_dir='cache',
-                       filters=[dfm.LowpassGodin(),
-                                dfm.Lag(np.timedelta64(-2*3600,'s'))])
+sac=dfm.NwisFlowBC(name="SacramentoRiver",station=11447650,
+                   pad=np.timedelta64(5,'D'),cache_dir='cache',
+                   filters=[dfm.LowpassGodin(),
+                            dfm.Lag(np.timedelta64(-2*3600,'s'))])
 model.add_bcs(sac)
 
-lisbon_bc=dfm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'))
-model.add_bcs(lisbon_bc)
+
+#lisbon_bc=dfm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'),
+#                         default=0.0)
+#model.add_bcs(lisbon_bc)
+log.warning("TEMPORARILY Disabling Lisbon flow due to CDEC issues")
 
 if 0: # not including wind right now
     # Try file pass through for forcing data:
@@ -189,28 +195,36 @@ if 1:
     model.add_bcs(rough_bc)
 
 # Culvert at CCS
-if 1:
-    # rough accounting of restoration
-    if model.run_start < np.datetime64("2014-11-01"):
-        # name => id
-        # polylinefile is filled in from shapefile and name
-        model.add_Structure(name='ccs_breach',
-                            type='gate',
-                            door_height=15, # no overtopping?
-                            lower_edge_level=0.89,
-                            opening_width=0.0, # pretty sure this is ignored.
-                            sill_level=0.85, # gives us a 0.05m opening?
-                            horizontal_opening_direction = 'symmetric')
-        # these are really just closed
-        for levee_name in ['ccs_west','ccs_east']:
-            model.add_Structure(name=levee_name,
-                                type='gate',
-                                door_height=15,
-                                lower_edge_level=3.5,
-                                opening_width=0.0,
-                                sill_level=3.5,
-                                horizontal_opening_direction = 'symmetric')
+# rough accounting of restoration
+if ccs_pre_restoration:
+    # name => id
+    # polylinefile is filled in from shapefile and name
 
+    # these structure parameters get an amplitude ratio at CCS of 1.241
+    # the shape is not great, and suggests that as the stage gets close to 1.7
+    # or so, wetted area expands rapidly. That is probably a shortcoming of the
+    # current bathymetry.
+    model.add_Structure(name='ccs_breach',
+                        type='gate',
+                        door_height=15, # no overtopping?
+                        lower_edge_level=0.9,
+                        # in release 1.5.2, this needs to be nonzero.  Could use
+                        # width of 0.0 in some older versions, but no longer.
+                        opening_width=0.1,
+                        sill_level=0.8,
+                        horizontal_opening_direction = 'symmetric')
+    # these are really just closed
+    for levee_name in ['ccs_west','ccs_east']:
+        model.add_Structure(name=levee_name,
+                            type='gate',
+                            door_height=15,
+                            lower_edge_level=3.5,
+                            opening_width=0.0,
+                            sill_level=3.5,
+                            horizontal_opening_direction = 'symmetric')
+
+
+        
 # -- Extract locations for sections and monitor points
 mon_sections=model.match_gazetteer(monitor=1,geom_type='LineString')
 mon_points  =model.match_gazetteer(geom_type='Point')

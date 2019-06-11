@@ -34,7 +34,6 @@ if __name__=='__main__':
 log=logging.getLogger('csc_dfm')
 
 import barker_data
-import nwis_bc
 import stompy.model.delft.dflow_model as dfm
 cache_dir='cache'
 
@@ -117,20 +116,20 @@ def base_config(model):
 
     # Decker only exists post-2015
     if model.run_start>np.datetime64("2015-11-16"):
-        model.add_bcs(nwis_bc.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
+        model.add_bcs(dfm.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
     else:
         # maybe fall back to Rio Vista, or some adjustment thereof
         raise Exception("Decker tidal data starts 2015-11-16, too late for this simulation period")
-    model.add_bcs(nwis_bc.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
+    model.add_bcs(dfm.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
     # GSS: from compare_flows and lit, must be flipped.
-    model.add_bcs(nwis_bc.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
+    model.add_bcs(dfm.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
                                      filters=[dfm.Transform(lambda x: -x)] ))
 
-    model.add_bcs(nwis_bc.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
+    model.add_bcs(dfm.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
                                      filters=[FillGaps(),
                                               dfm.Transform(lambda x: -x)] ) )
 
-    sac=nwis_bc.NwisFlowBC(name="SacramentoRiver",station=11447650,
+    sac=dfm.NwisFlowBC(name="SacramentoRiver",station=11447650,
                            pad=np.timedelta64(5,'D'),cache_dir='cache',
                            filters=[dfm.LowpassGodin(),
                                     dfm.Lag(np.timedelta64(-2*3600,'s'))])

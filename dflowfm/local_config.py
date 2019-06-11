@@ -24,9 +24,10 @@ if sys.platform=='win32':
     # tries to get network access.
     mpi_args=["-localonly"]
 else:
-    dfm_bin_dir="/home/rusty/src/dfm/1.5.1/lnx64/bin/"
-    os.environ['LD_LIBRARY_PATH']="/home/rusty/src/dfm/1.5.1/lnx64/lib/"
-    share_bin_dir=dfm_bin_dir
+    dfm_bin_dir="/home/rusty/src/dfm/1.5.2/lnx64/bin/"
+    os.environ['LD_LIBRARY_PATH']="/home/rusty/src/dfm/1.5.2/lnx64/lib/"
+    # this mpiexec seems to be compatible.
+    share_bin_dir="/opt/anaconda3/bin" # dfm_bin_dir
     run_dir_root="runs"
 
 def install():
