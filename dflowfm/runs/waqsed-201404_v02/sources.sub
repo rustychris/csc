@@ -29,13 +29,8 @@ parameter 'VSedIM1'
   description 'sedimentation velocity IM1'
   unit 'm/d'
   ; converted from Achete 2015 0.25 mm/s. should be 21.6
-  value 21.6
-end-parameter
-parameter 'VxSedIM1'
-  description 'real sedimentation velocity IM1'
-  unit 'm/d'
-  ; converted from Achete 2015 0.25 mm/s. should be 21.6
-  value 21.6
+  ; that seems to clear too quickly.  half it to 10.0
+  value 10.0
 end-parameter
 ; these two together do get some IM1.
 parameter 'SWResIM1'

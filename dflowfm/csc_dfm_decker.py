@@ -29,6 +29,12 @@ import barker_data
 import stompy.model.delft.dflow_model as dfm
 cache_dir='cache'
 
+try:
+    here=os.path.dirname(__file__)
+except NameError:
+    here="."
+    log.info("Assuming script is in %s"%here)
+
 ## --------------------------------------------------
 
 import local_config
@@ -45,10 +51,11 @@ model.utc_offset=np.timedelta64(-8,'h') # PST.
 # v00: pre-restoration period with post-restoration grid
 # v01: use pre-restoration bathy
 # v02: tuned CCS culvert
-model.set_run_dir("runs/val-201404_v02", mode='pristine')
+# v03: Add Ulatis and Campbell Lake inflows
+model.set_run_dir("runs/val-201404_v03", mode='pristine')
 
-model.run_start=np.datetime64('2014-03-25')
-model.run_stop=np.datetime64('2014-04-30')
+model.run_start=np.datetime64('2014-02-25')
+model.run_stop=np.datetime64('2014-05-15')
 
 model.load_mdu('template.mdu')
 
@@ -155,11 +162,28 @@ sac=dfm.NwisFlowBC(name="SacramentoRiver",station=11447650,
 model.add_bcs(sac)
 
 
-#lisbon_bc=dfm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'),
-#                         default=0.0)
-#model.add_bcs(lisbon_bc)
-log.warning("TEMPORARILY Disabling Lisbon flow due to CDEC issues")
+if 1:
+    lisbon_bc=dfm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'),
+                             default=0.0)
+    model.add_bcs(lisbon_bc)
+else:
+    log.warning("TEMPORARILY Disabling Lisbon flow due to CDEC issues")
 
+# Ulatis inflow
+# There are probably timezone issues here - they are coming in PST, but
+# this code probably assumes UTC.
+ulatis_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/ulatis_hwy113.nc"))
+ulatis_ds['flow']=ulatis_ds.flow_cfs*0.02832
+ulatis_ds['flow'].attrs['units']='m3 s-1'
+model.add_bcs(dfm.FlowBC(name='ULATIS',Q=ulatis_ds.flow))
+
+# Campbell Lake
+campbell_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/campbell_lake.nc"))
+campbell_ds['flow']=campbell_ds.flow_cfs*0.02832
+campbell_ds['flow'].attrs['units']='m3 s-1'
+model.add_bcs(dfm.FlowBC(name='CAMPBELL',Q=campbell_ds.flow))
+
+    
 if 0: # not including wind right now
     # Try file pass through for forcing data:
     windxy=model.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
@@ -238,6 +262,10 @@ if 1:
 
 ##
 
+import gen_polygons
+gen_polygons.gen_polygons(model.run_dir)
+
+## 
 # if not invoked directly, just set up the model and let
 # the importer decide what to do with model.
 

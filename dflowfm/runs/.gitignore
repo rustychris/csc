@@ -1,8 +1,10 @@
 struct_test_v01
 struct_test_v02
-val-201404_v00
-val-201404_v01
+val-201404_v*
+!val-201404_v03
 waq-201404_v00
 2018*
 grid*
 hypso*
+waqsed-201404_v*
+!waqsed-201404_v13

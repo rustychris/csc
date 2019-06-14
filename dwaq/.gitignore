@@ -1,1 +1,5 @@
 tmp-*
+ssc-snapshot*
+VON*
+114*.nc
+.ipynb_checkpoints
