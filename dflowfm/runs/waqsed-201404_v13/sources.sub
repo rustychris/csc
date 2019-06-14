@@ -1,0 +1,99 @@
+substance 'IM1' active
+  description 'sediment class 1'
+  concentration-unit 'g/m3'
+  waste-load-unit 'g'
+end-substance
+substance 'IM1S1' inactive
+  description 'deposited sed 1'
+  concentration-unit 'g/m2'
+  waste-load-unit 'g'
+end-substance
+substance 'IM1S2' inactive
+  description 'deposited sed layer 2'
+  concentration-unit 'g/m2'
+  waste-load-unit 'g'
+end-substance
+
+parameter 'TaucSIM1'
+  description  'critical shear stress for sedimentation IM1'
+  unit 'N/m2'
+  ; follow Achete 2015, no shear stress dependence for deposition
+  ; a high value effectively removes tau dependence.
+  value 1000.00
+end-parameter
+
+parameter 'VSedIM1'
+  description 'sedimentation velocity IM1'
+  unit 'm/d'
+  ; converted from Achete 2015 0.25 mm/s. should be 21.6
+  ; that seems to clear too quickly.  half it to 10.0
+  ; with S1/S2 approach, go back up to 10.
+  ; tried 50, but generally worse than 21.6
+  value 21.6
+end-parameter
+
+parameter 'SWResIM1'
+  description 'switch resuspension IM1 (0=resdm, 1=resim1)'
+  unit '-'
+  value 0.0
+end-parameter
+
+parameter 'ZResDM'
+  description 'zero order DM resuspension flux'
+  unit 'gDM/m2/day'
+  ; really this is gDM/m2/day / (2x critical bed stress)
+  ; Achete 2015, 1e-4 kg/m2/s.  Should be 8640.
+  ; that's 2-3x higher than most others.
+  value 4320.0
+end-parameter
+
+parameter 'TaucRS1DM'
+  description 'critical shear stress for resuspension DM layer S1'
+  unit 'N/m2'
+  value 1e-3
+end-parameter
+
+;;XXparameter 'TaucRS2DM'
+;;XX  description 'critical shear stress for resuspension DM layer S2'
+;;XX  unit 'N/m2'
+;;XX  value 0.2
+;;XXend-parameter
+
+parameter 'VBurDMS1'
+  description 'First order burial rate S1=>S2'
+  unit '1/day'
+  value 1.0
+end-parameter
+
+parameter 'SWSediment'
+  description '0 for set thickness, 1 for set rates'
+  unit '-'
+  value 1.0
+end-parameter
+
+parameter 'MinDepth'
+  description 'minimum waterdepth for sedimentation/resuspension'
+  unit 'm'
+  value 0.1
+end-parameter
+
+output 'ActThS1'
+  description 'thickness s1'
+end-output
+
+output 'ActThS2'
+  description 'thickness s2'
+end-output
+
+active-processes
+   name 'DYNDEPTH' 'Depth calculations'
+   name 'TOTDEPTH' 'total depth calc'
+   name 'SED_IM1'  'Settling of sed class 1'
+   name 'Res_DM'   'Resuspension of dry matter'
+   name 'Bur_DM'   'Burial of dry matter'
+   name 'Sum_Sedim' 'Total sedimentation flux'
+   name 'S1_Comp'  'Composition of layer S1'
+   name 'S2_Comp'  'Composition of layer S1'
+   name 'S12TraIM1' 'Transport of IM1 in S1 S2'
+end-active-processes
+
