@@ -40,6 +40,9 @@ except NameError:
 import local_config
 local_config.install()
 
+class CscDeckerModel(object):
+
+
 model=dfm.DFlowModel()
 
 model.num_procs=12

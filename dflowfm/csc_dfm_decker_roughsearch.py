@@ -35,13 +35,14 @@ log=logging.getLogger('csc_dfm')
 
 import barker_data
 import stompy.model.delft.dflow_model as dfm
+import stompy.model.hydro_model as hm
 cache_dir='cache'
 
 ## --------------------------------------------------
 
 # for DCC, when the gates are closed they sometimes do not report
 # flow, so here we will those gaps with 0.
-class FillGaps(dfm.BCFilter):
+class FillGaps(hm.BCFilter):
     max_gap_interp_s=2*60*60
     large_gap_value=0.0
 
@@ -106,8 +107,8 @@ def base_config(model):
     model.add_gazetteer('gis/model-features.shp')
     model.add_gazetteer('gis/point-features.shp')
 
-    dfm.SourceSinkBC.dredge_depth=-1
-    dfm.FlowBC.dredge_depth=-1
+    hm.SourceSinkBC.dredge_depth=-1
+    hm.FlowBC.dredge_depth=-1
 
     # check_bspp.py has the code that converted original tim to csv.
     # awkward reloading of that, but at least it's independent of the
@@ -116,23 +117,23 @@ def base_config(model):
 
     # Decker only exists post-2015
     if model.run_start>np.datetime64("2015-11-16"):
-        model.add_bcs(dfm.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
+        model.add_bcs(hm.NwisStageBC(name='decker',station=11455478,cache_dir='cache'))
     else:
         # maybe fall back to Rio Vista, or some adjustment thereof
         raise Exception("Decker tidal data starts 2015-11-16, too late for this simulation period")
-    model.add_bcs(dfm.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
+    model.add_bcs(hm.NwisFlowBC(name='threemile',station=11337080,cache_dir='cache'))
     # GSS: from compare_flows and lit, must be flipped.
-    model.add_bcs(dfm.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
-                                     filters=[dfm.Transform(lambda x: -x)] ))
+    model.add_bcs(hm.NwisFlowBC(name='Georgiana',station=11447903,cache_dir='cache',
+                                filters=[hm.Transform(lambda x: -x)] ))
 
-    model.add_bcs(dfm.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
+    model.add_bcs(hm.NwisFlowBC(name='dcc',station=11336600,cache_dir='cache',
                                      filters=[FillGaps(),
-                                              dfm.Transform(lambda x: -x)] ) )
+                                              hm.Transform(lambda x: -x)] ) )
 
-    sac=dfm.NwisFlowBC(name="SacramentoRiver",station=11447650,
+    sac=hm.NwisFlowBC(name="SacramentoRiver",station=11447650,
                            pad=np.timedelta64(5,'D'),cache_dir='cache',
-                           filters=[dfm.LowpassGodin(),
-                                    dfm.Lag(np.timedelta64(-2*3600,'s'))])
+                           filters=[hm.LowpassGodin(),
+                                    hm.Lag(np.timedelta64(-2*3600,'s'))])
     model.add_bcs(sac)
 
     ##
@@ -144,7 +145,7 @@ def base_config(model):
     lisbon_ds['Q']=lisbon_ds['sensor0020'] * 0.028316847
     # to hourly average
     lisbon_ds.groupby( lisbon_ds.time.astype('M8[h]')).mean()
-    lisbon_bc=dfm.FlowBC(name='lis',Q=lisbon_ds.Q)
+    lisbon_bc=hm.FlowBC(name='lis',Q=lisbon_ds.Q)
 
     # Roughness - handled by caller.
     # model.add_RoughnessBC(shapefile='forcing-data/manning_n.shp')

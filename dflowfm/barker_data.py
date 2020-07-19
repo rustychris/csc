@@ -2,7 +2,8 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from stompy.io.local import cdec
-import stompy.model.delft.dflow_model as dfm
+#import stompy.model.delft.dflow_model as dfm
+import stompy.model.hydro_model as hm
 
 # original csv has 2007-09-29 to 2017-04-30, and is identical
 # to the data from CDEC after unit and sign conversion
@@ -10,9 +11,10 @@ import stompy.model.delft.dflow_model as dfm
 
 ##
 
-class BarkerPumpsBC(dfm.FlowBC):
+class BarkerPumpsBC(hm.FlowBC):
     station_id="BKS"
     sensor=70 # daily, discharge, pumping
+    pad=np.timedelta64(2,'D')
     def src_data(self):
         ds=self.fetch_for_period(self.data_start,self.data_stop)
         return ds['Q']
