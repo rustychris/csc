@@ -191,14 +191,14 @@ class CscDeckerModel(dfm.DFlowModel):
             return ds
 
         ulatis_ds=pad_with_zero(ulatis_ds)
-        self.add_bcs(hm.FlowBC(name='ULATIS',Q=ulatis_ds.flow,dredge_depth=dredge_depth))
+        self.add_bcs(hm.FlowBC(name='ULATIS',flow=ulatis_ds.flow,dredge_depth=dredge_depth))
 
         # Campbell Lake
         campbell_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/campbell_lake.nc"))
         campbell_ds['flow']=campbell_ds.flow_cfs*0.02832
         campbell_ds['flow'].attrs['units']='m3 s-1'
         campbell_ds=pad_with_zero(campbell_ds)
-        self.add_bcs(hm.FlowBC(name='CAMPBELL',Q=campbell_ds.flow,dredge_depth=dredge_depth))
+        self.add_bcs(hm.FlowBC(name='CAMPBELL',flow=campbell_ds.flow,dredge_depth=dredge_depth))
 
         if 0: # not including wind right now
             # Try file pass through for forcing data:
@@ -431,6 +431,7 @@ if __name__=='__main__':
             last_model=model
         else:
             print("  -- appears to have already been run")
+            last_model=CscDeckerModel.load(run_dir)
             
         run_count+=1
         last_run_dir=run_dir

@@ -24,16 +24,21 @@ if sys.platform=='win32':
     # tries to get network access.
     mpi_args=["-localonly"]
 else:
-    dfm_bin_dir="/home/rusty/src/dfm/1.5.2/lnx64/bin/"
-    os.environ['LD_LIBRARY_PATH']="/home/rusty/src/dfm/1.5.2/lnx64/lib/"
-    # this mpiexec seems to be compatible.
-    share_bin_dir="/opt/anaconda3/bin" # dfm_bin_dir
+    dfm_bin_dir="/home/rusty/src/dfm/1.6.3/lnx64/bin/"
+    os.environ['LD_LIBRARY_PATH']="/home/rusty/src/dfm/1.6.3/lnx64/lib/"
+    # not sure..
+    share_bin_dir="/usr/bin" 
     run_dir_root="runs"
 
 def install():
     from stompy.model.delft import dflow_model
     dflow_model.DFlowModel.dfm_bin_dir=dfm_bin_dir
-    dflow_model.DFlowModel.mpi_bin_dir=share_bin_dir
+    dflow_model.DFlowModel.mpi_bin_dir="/usr/bin"
+    dflow_model.DFlowModel.mpi_bin_exe="mpiexec.mpich"
+
     if sys.platform=='win32':
         dflow_model.DFlowModel.dfm_bin_exe="dflowfm-cli.exe"
         dflow_model.DFlowModel.mpi_args=('-localonly',)
+
+# other defaults for local machine
+num_procs=4
