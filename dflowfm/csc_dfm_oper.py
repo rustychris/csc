@@ -6,7 +6,7 @@ for Cache Slough Complex
    necessitating different forcing config.
 """
 
-import os
+import os, sys
 import numpy as np
 import logging
 import xarray as xr
@@ -26,6 +26,14 @@ if __name__=='__main__':
     logging.basicConfig(level=logging.INFO)
 
 log=logging.getLogger('csc_dfm')
+
+try:
+    import local_config
+except ImportError:
+    log.error("local_config.py not found. May need to copy from local_config.py.in")
+    sys.exit(1)
+
+
 
 import barker_data
 
@@ -48,7 +56,6 @@ except NameError:
 
 import local_config
 six.moves.reload_module(local_config)
-local_config.install()
 
 try:
     here=os.path.dirname(__file__)
@@ -57,7 +64,6 @@ except NameError:
 
 class CscDeckerModel(dfm.DFlowModel):
     cache_dir='cache'
-    num_procs=local_config.num_procs
     z_datum='NAVD88' # not really used right now.
     projection='EPSG:26910'
     # Forcing data is fetched as UTC, and adjusted according to this offset
