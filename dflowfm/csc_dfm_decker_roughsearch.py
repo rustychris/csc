@@ -25,8 +25,6 @@ from stompy.model.delft import dfm_grid
 from stompy.grid import unstructured_grid
 from stompy.spatial import wkb2shp, field
 from stompy.io.local import cdec
-import local_config
-local_config.install()
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO)
@@ -35,6 +33,7 @@ log=logging.getLogger('csc_dfm')
 
 import barker_data
 import stompy.model.delft.dflow_model as dfm
+import local_config
 import stompy.model.hydro_model as hm
 cache_dir='cache'
 
