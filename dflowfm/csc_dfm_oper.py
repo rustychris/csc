@@ -33,34 +33,18 @@ except ImportError:
     log.error("local_config.py not found. May need to copy from local_config.py.in")
     sys.exit(1)
 
-
-
 import barker_data
 
 import stompy.model.delft.dflow_model as dfm
+six.moves.reload_module(local_config)
 import stompy.model.hydro_model as hm
 import csc_dfm_decker_roughsearch as rs
-
-six.moves.reload_module(hm)
-six.moves.reload_module(dfm)
-six.moves.reload_module(barker_data)
-six.moves.reload_module(rs)
 
 try:
     here=os.path.dirname(__file__)
 except NameError:
     here="."
     log.info("Assuming script is in %s"%here)
-
-## --------------------------------------------------
-
-import local_config
-six.moves.reload_module(local_config)
-
-try:
-    here=os.path.dirname(__file__)
-except NameError:
-    here="."
 
 class CscDeckerModel(dfm.DFlowModel):
     cache_dir='cache'
@@ -359,8 +343,10 @@ if __name__=='__main__':
     parser.add_argument("--interval",help="Interval for multiple shorter runs, e.g. 1D for 1 day",
                         default=None)
 
-    args="-d runs/v03/v03 -s 2019-01-15T00:00 -e 2019-07-05T00:00 --interval 30D".split()
-    # args=None
+    args=None
+    # Uncomment this to hardwire in a command line, useful for testing from within
+    # a python console session.
+    # args="-d runs/v03/v03 -s 2019-01-15T00:00 -e 2019-07-05T00:00 --interval 30D".split()
     args=parser.parse_args(args=args)
     
     if args.resume is not None:
@@ -445,38 +431,3 @@ if __name__=='__main__':
         # run_stop, based on frequency of writing restart data.
         run_start=run_stop
 
-# Hmm - not entirely clear whether it's running MPI or not.
-
-# /usr/bin/mpiexec -n 4 /home/rusty/src/dfm/1.6.3/lnx64/bin/dflowfm -t 1 --autostartstop flowfm.mdu    
-# my system mpiexec is openmpi,
-# but the mpi shared lib from dflowfm has mpich in some of the symbol names.
-
-# That's better.
-# On my laptop it's running about 32 minutes for a 5 day run.
-# so 48*5.  spoke too soon.  it's bogging down: 1.9s steps.
-
-# Hmm - getting a bunch of nan spreading out
-# There is some missing data in the LIS timeseries.
-# The runs is bailing out about 6d in.
-# Runs starts 20190115, so the problem is around 2019-01-21
-# Possibly due to negative flows on LIS?
-
-# Almost there -- but Barker pumping plant ran out of data:
-
-#  ** WARNING: Updating target failed, quantity='dischargebnd', item=      17
-#  ** WARNING: Updating source failed, quantity='polytim_item', item=       5, location=
-#  ** WARNING: Updating target failed, quantity='polytim_item', item=       5
-#  ** WARNING: Updating source failed, quantity='uniform_item', item=      11, location=Barker_Pumping_Plant_0001.
-#  ** WARNING: File end has been reached of: Barker_Pumping_Plant_0001.tim
-#  ** WARNING: Error while updating boundary forcing at time=  5180404.054
-
-# Should still be able to restart. Though might be worth updating the code
-# to set the folder name based on the actual start, not the expected start.
-
-# last entry in Barker pumping plant is
-# 8.634000000000000000e+04 -0.000000000000000000e+00
-# RefDate is 20190115
-# TStart 2592000
-# TStop 5184000
-# presumably those are seconds.
-# Yep - ending 86400 minutes, but data goes only through 86340 minutes
