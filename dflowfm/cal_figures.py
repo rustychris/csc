@@ -23,8 +23,8 @@ six.moves.reload_module(dflow_model)
 
 plot_defs=[]
 
-model=dflow_model.DFlowModel.load('runs/v03/v03_20190415/flowfm.mdu')
-model.utc_offset=np.timedelta64(-8,'h') # model runs in PST
+model=dflow_model.DFlowModel.load('runs/test_nwis_salt_20190901')
+# model.utc_offset=np.timedelta64(-8,'h') # model runs in PST
 
 # And some on-demand downloaded data:
 # Or chained..
@@ -34,6 +34,12 @@ model_period=[model.run_start,model.run_stop]
 # Passing the model to the data source enables time zone correction
 
 plot_defs=[
+    dict(sources=[hm.NwisScalarBC(name='SDI', station=11455478, scalar='salinity',
+                                  cache_dir='cache', model=model)],
+         station_name='Sac R. at Decker Island'),
+    dict(sources=[hm.NwisStageBC(name='SDI', station=11455478,
+                                 cache_dir='cache', model=model)],
+         station_name='Sac R. at Decker Island'),
     dict(sources=[hm.NwisStageBC(name='SRV',station=11455420,
                                  cache_dir='cache',model=model)],
          station_name='Rio Vista'),
@@ -69,19 +75,19 @@ plot_defs=[
     dict(sources=[hm.NwisStageBC(name='SG1',station=11455276,
                                  cache_dir='cache',model=model)],
          station_name='Shag, near Courtland'),
-    dict(sources=[hm.NwisFlowBC(name='SG1',station=11455276,
+    dict(sources=[hm.NwisFlowBC(name='SHAG',station=11455276,
                                 cache_dir='cache',model=model)],
          station_name='Shag, near Courtland'),
 
     # These just have BGC parameters-- 
-    # dict(sources=[hm.NwisFlowBC(name='DWSCTL',station=11455142,
-    #                             cache_dir='cache',model=model)],
-    #      station_name="DWS, Courtland"),
+    dict(sources=[hm.NwisScalarBC(name='DWSCTL',station=11455142, scalar='salinity',
+                                  cache_dir='cache',model=model)],
+         station_name="DWS, Courtland"),
     # dict(sources=[hm.NwisFlowBC(name='DWSCTL',station=11455142,
     #                             cache_dir='cache',model=model)],
     #      station_name="DWS, Courtland"),
     
-    dict(sources=[hm.NwisFlowBC(name='DWS',station=11455335,
+    dict(sources=[hm.NwisStageBC(name='DWS',station=11455335,
                                 cache_dir='cache',model=model)],
          station_name="DWS"),
     dict(sources=[hm.NwisFlowBC(name='DWS',station=11455335,
@@ -130,6 +136,10 @@ for plot_def in plot_defs:
         fig.axes[0].set_ylabel('Stage (m)')
         fig.axes[1].set_ylabel('Lowpass stage (m)')
         fig.axes[0].set_title("Stage Calibration: %s"%plot_def['station_name'])
+    elif param=='salinity':
+        fig.axes[0].set_ylabel('Salinity (ppt)')
+        fig.axes[1].set_ylabel('Lowpass salinity (ppt)')
+        fig.axes[0].set_title("Salinity Calibration: %s" % plot_def['station_name'])
         
     fig.axes[0].axis(xmin=settings['zoom_period'][0],
                      xmax=settings['zoom_period'][1])
@@ -139,7 +149,7 @@ for plot_def in plot_defs:
     fig.axes[0].xaxis.set_major_locator(ticker.MultipleLocator(3))
     fig.axes[1].xaxis.set_major_locator(ticker.MultipleLocator(7))
     fig.subplots_adjust(wspace=0.35)
-
-    fig.savefig(img_fn,dpi=200)
+    fig.set_size_inches(10, 8)
+    fig.savefig(img_fn,dpi=200, bbox_inches='tight')
 
 
