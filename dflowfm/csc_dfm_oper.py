@@ -55,6 +55,8 @@ class CscDeckerModel(dfm.DFlowModel):
 
     src_grid_fn=os.path.join(here,'../grid/CacheSloughComplex_v111-edit21.nc')
 
+    salinity = True
+
     def load_default_mdu(self):
         self.load_mdu('template.mdu')
         
@@ -111,8 +113,9 @@ class CscDeckerModel(dfm.DFlowModel):
 
         if self.tidal_bc_location=='decker':
             # Decker only exists post-2015
-            self.add_bcs(hm.NwisStageBC(name='decker',station=11455478,cache_dir=self.cache_dir,
-                                        filters=[hm.Lowpass(cutoff_hours=1.0)]))
+            decker = hm.NwisStageBC(name='decker',station=11455478,cache_dir=self.cache_dir,
+                                    filters=[hm.Lowpass(cutoff_hours=1.0)])
+            self.add_bcs(decker)
         elif self.tidal_bc_location=='riovista':
             self.add_bcs(hm.NwisStageBC(name='SRV',station=11455420,cache_dir=self.cache_dir,
                                         filters=[hm.Lowpass(cutoff_hours=1.0)]))
@@ -195,6 +198,8 @@ class CscDeckerModel(dfm.DFlowModel):
             windxy=self.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
             windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
             self.add_WindBC(wind=windxy['wind_xy'])
+        if self.salinity:
+             self.add_bcs(hm.NwisScalarBC(station=decker.station, parent=decker, scalar='salinity'))
 
         self.setup_roughness()
         
