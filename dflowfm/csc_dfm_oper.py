@@ -56,6 +56,7 @@ class CscDeckerModel(dfm.DFlowModel):
     src_grid_fn=os.path.join(here,'../grid/CacheSloughComplex_v111-edit21.nc')
 
     salinity = True
+    delwaq = True
 
     def load_default_mdu(self):
         self.load_mdu('template.mdu')
@@ -202,7 +203,14 @@ class CscDeckerModel(dfm.DFlowModel):
              self.add_bcs(hm.NwisScalarBC(station=decker.station, parent=decker, scalar='salinity'))
 
         self.setup_roughness()
-        
+
+
+        if delwaq:
+            waq_model = self.setup_delwaq()
+            # advect zero-order nitrate production coefficient from Sac River
+            self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
+
+
     def setup_roughness(self):
         # Roughness 
         if 1:
@@ -227,6 +235,24 @@ class CscDeckerModel(dfm.DFlowModel):
             da.attrs['long_name']='Manning n'
             rough_bc=hm.RoughnessBC(data_array=da)
             self.add_bcs(rough_bc)
+
+    def setup_delwaq(self):
+        """
+        Set up Delwaq model to run with Dflow. Currently used to calculate age of water using nitrification process
+        """
+        waq_model = dfm.WaqModel(self)
+        # treat zero-order nitrate production coefficient as active substance
+        waq_model.add_substance(name='NH3', active=True)
+        waq_model.add_substance(name='ZNit', active=True)
+        # don't think we need ammonium as substance using zero-order nitrification process?
+
+        waq_model.add_param(name='SWVnNit', value=0)  # use pragmatic kinetics nitrification formula
+        waq_model.add_param(name='RcNit', value=0)  # no temp. dependence
+
+        waq_model.add_process(name='NITRIF_NH4')
+
+        waq_model.write_sub()
+
 
     def setup_structures(self):
         # Culvert at CCS
