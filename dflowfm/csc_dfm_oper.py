@@ -205,7 +205,7 @@ class CscDeckerModel(dfm.DFlowModel):
         self.setup_roughness()
 
 
-        if delwaq:
+        if self.delwaq:
             waq_model = self.setup_delwaq()
             # advect zero-order nitrate production coefficient from Sac River
             self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
@@ -241,10 +241,10 @@ class CscDeckerModel(dfm.DFlowModel):
         Set up Delwaq model to run with Dflow. Currently used to calculate age of water using nitrification process
         """
         waq_model = dfm.WaqModel(self)
-        # treat zero-order nitrate production coefficient as active substance
+        waq_model.add_substance(name='NH4', active=True)
         waq_model.add_substance(name='NH3', active=True)
+        # treat zero-order nitrate production coefficient as active substance
         waq_model.add_substance(name='ZNit', active=True)
-        # don't think we need ammonium as substance using zero-order nitrification process?
 
         waq_model.add_param(name='SWVnNit', value=0)  # use pragmatic kinetics nitrification formula
         waq_model.add_param(name='RcNit', value=0)  # no temp. dependence
@@ -447,7 +447,7 @@ if __name__=='__main__':
             if args.no_run:
                 print("No run - dropping out of loop")
                 break
-            model.run_model()
+            model.run_model(extra_args=['--processlibrary', dfm.DFlowModel.waq_proc_def])
             if not model.is_completed():
                 log.error("Breaking out of loop -- run %s did not complete"%run_dir)
                 break
