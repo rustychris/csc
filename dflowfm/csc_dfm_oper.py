@@ -206,10 +206,10 @@ class CscDeckerModel(dfm.DFlowModel):
 
 
         if self.delwaq:
-            waq_model = self.setup_delwaq()
+            self.setup_delwaq()
             # advect zero-order nitrate production coefficient from Sac River
             self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
-
+            # self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='RcNit', value=1))
 
     def setup_roughness(self):
         # Roughness 
@@ -241,17 +241,19 @@ class CscDeckerModel(dfm.DFlowModel):
         Set up Delwaq model to run with Dflow. Currently used to calculate age of water using nitrification process
         """
         waq_model = dfm.WaqModel(self)
-        waq_model.add_substance(name='NH4', active=True)
-        waq_model.add_substance(name='NH3', active=True)
-        # treat zero-order nitrate production coefficient as active substance
-        waq_model.add_substance(name='ZNit', active=True)
+        zero_order=True
+        if zero_order:
+            waq_model.add_substance(name='NO3', active=True)
+            waq_model.add_substance(name='ZNit', active=True)
+            waq_model.add_param(name='NH4', value=0)  # need NH4 initialized for Nitrification, even if not using
+        else:
+            waq_model.add_substance(name='NO3', active=True)
+            waq_model.add_substance(name='RcNit', active=True)
+            waq_model.add_param(name='TcNit', value=1)  # no temp. dependence
+            waq_model.add_param(name='NH4', value=1)  # inexhaustible constant ammonium supply
+        waq_model.add_process(name='Nitrif_NH4')  # by default, Nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)
 
-        waq_model.add_param(name='SWVnNit', value=0)  # use pragmatic kinetics nitrification formula
-        waq_model.add_param(name='RcNit', value=0)  # no temp. dependence
-
-        waq_model.add_process(name='NITRIF_NH4')
-
-        waq_model.write_sub()
+        waq_model.write_waq()
 
 
     def setup_structures(self):
