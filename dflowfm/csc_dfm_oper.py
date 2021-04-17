@@ -55,7 +55,7 @@ class CscDeckerModel(dfm.DFlowModel):
 
     src_grid_fn=os.path.join(here,'../grid/CacheSloughComplex_v111-edit21.nc')
 
-    salinity = True
+    salinity = False
     delwaq = True
 
     def load_default_mdu(self):
@@ -66,6 +66,8 @@ class CscDeckerModel(dfm.DFlowModel):
 
     @property
     def tidal_bc_location(self):
+        # just use rio vista because decker data got pulled from USGS site
+        return 'riovista'
         if self.run_start < np.datetime64("2016-05-01"):
             return 'riovista'
         else:
@@ -95,7 +97,7 @@ class CscDeckerModel(dfm.DFlowModel):
 
         if self.tidal_bc_location=='riovista':
             # truncate domain:
-            srv_line=model.get_geometry(name='SRV',geom_type='LineString')
+            srv_line=self.get_geometry(name='SRV',geom_type='LineString')
             to_keep=g.select_cells_by_cut(srv_line)
             for c in np.nonzero(~to_keep)[0]:
                 g.delete_cell(c)
@@ -386,7 +388,7 @@ if __name__=='__main__':
         # Go ahead and get the restart time, so that intervals and directory names
         # can be chosen below
         last_run_dir=args.resume
-        last_model=drv.SuntansModel.load(last_run_dir)
+        last_model=dfm.DFlowModel.load(last_run_dir)
         multi_run_start=last_model.restartable_time()
         print("Will resume run in %s from %s"%(last_run_dir,multi_run_start))
     else:
