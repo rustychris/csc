@@ -51,11 +51,12 @@ class CscDeckerModel(dfm.DFlowModel):
     z_datum='NAVD88' # not really used right now.
     projection='EPSG:26910'
     # Forcing data is fetched as UTC, and adjusted according to this offset
-    utc_offset=np.timedelta64(-8,'h') # PST.  
+    utc_offset=np.timedelta64(-8,'h') # PST.
 
     src_grid_fn=os.path.join(here,'../grid/CacheSloughComplex_v111-edit21.nc')
 
     salinity = False
+    wind = False
     delwaq = True
 
     def load_default_mdu(self):
@@ -67,12 +68,14 @@ class CscDeckerModel(dfm.DFlowModel):
     @property
     def tidal_bc_location(self):
         # just use rio vista because decker data got pulled from USGS site
-        return 'riovista'
+        """
         if self.run_start < np.datetime64("2016-05-01"):
             return 'riovista'
         else:
             return 'decker'
-    
+        """
+        return 'riovista'
+
     def get_grid(self):
         """ 
         Get a grid with bathy. Depends on run_start in order to choose
@@ -116,12 +119,13 @@ class CscDeckerModel(dfm.DFlowModel):
 
         if self.tidal_bc_location=='decker':
             # Decker only exists post-2015
-            decker = hm.NwisStageBC(name='decker',station=11455478,cache_dir=self.cache_dir,
-                                    filters=[hm.Lowpass(cutoff_hours=1.0)])
-            self.add_bcs(decker)
+            tidal_bc = hm.NwisTidalBC(name='decker',station=11455478,cache_dir=self.cache_dir,
+                                      filters=[hm.Lowpass(cutoff_hours=1.0)])
+            self.add_bcs(tidal_bc)
         elif self.tidal_bc_location=='riovista':
-            self.add_bcs(hm.NwisStageBC(name='SRV',station=11455420,cache_dir=self.cache_dir,
-                                        filters=[hm.Lowpass(cutoff_hours=1.0)]))
+            tidal_bc = hm.NwisTidalBC(name='SRV',station=11455420,cache_dir=self.cache_dir,
+                                      filters=[hm.Lowpass(cutoff_hours=1.0)])
+            self.add_bcs(tidal_bc)
         else:
             raise Exception("Bad value for tidal_bc_location: %s"%self.tidal_bc_location)
 
@@ -196,16 +200,16 @@ class CscDeckerModel(dfm.DFlowModel):
         campbell_ds=pad_with_zero(campbell_ds)
         self.add_bcs(hm.FlowBC(name='CAMPBELL',flow=campbell_ds.flow,dredge_depth=dredge_depth))
 
-        if 0: # not including wind right now
+        if self.wind: # not including wind right now
             # Try file pass through for forcing data:
             windxy=self.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
             windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
             self.add_WindBC(wind=windxy['wind_xy'])
+
         if self.salinity:
              self.add_bcs(hm.NwisScalarBC(station=decker.station, parent=decker, scalar='salinity'))
 
         self.setup_roughness()
-
 
         if self.delwaq:
             self.setup_delwaq()
@@ -253,10 +257,9 @@ class CscDeckerModel(dfm.DFlowModel):
             waq_model.add_substance(name='RcNit', active=True)
             waq_model.add_param(name='TcNit', value=1)  # no temp. dependence
             waq_model.add_param(name='NH4', value=1)  # inexhaustible constant ammonium supply
-        waq_model.add_process(name='Nitrif_NH4')  # by default, Nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)
+        waq_model.add_process(name='Nitrif_NH4')  # by default, nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)
 
         waq_model.write_waq()
-
 
     def setup_structures(self):
         # Culvert at CCS
