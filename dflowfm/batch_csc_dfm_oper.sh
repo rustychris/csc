@@ -10,7 +10,6 @@
 # specify -n <num cores> on the command line to sbatch.
 DFMROOT=/home/rustyh/src/dfm/delft3dfm_2021.01/lnx64
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DFMROOT/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/klarrieu/src/csc/dflowfm/runs/sb_rv_20190601
 
 echo 'working directory:'
 echo $PWD
