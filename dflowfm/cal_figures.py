@@ -6,6 +6,7 @@ import xarray as xr
 from matplotlib import ticker
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 from stompy import utils
 from stompy.model import data_comparison
@@ -23,23 +24,26 @@ six.moves.reload_module(dflow_model)
 
 plot_defs=[]
 
-model=dflow_model.DFlowModel.load('runs/test_nwis_salt_20190901')
-# model.utc_offset=np.timedelta64(-8,'h') # model runs in PST
+model=dflow_model.DFlowModel.load('runs/sb_rv4_20190601')
+model.utc_offset=np.timedelta64(-8,'h') # model runs in PST
 
 # And some on-demand downloaded data:
 # Or chained..
 model_period=[model.run_start,model.run_stop]
 
+# change because run didn't finish
+# model_period[1] = np.datetime64('2019-08-08')
 
 # Passing the model to the data source enables time zone correction
 
 plot_defs=[
-    dict(sources=[hm.NwisScalarBC(name='SDI', station=11455478, scalar='salinity',
-                                  cache_dir='cache', model=model)],
-         station_name='Sac R. at Decker Island'),
-    dict(sources=[hm.NwisStageBC(name='SDI', station=11455478,
-                                 cache_dir='cache', model=model)],
-         station_name='Sac R. at Decker Island'),
+    # dict(sources=[hm.NwisScalarBC(name='SDI', station=11455478, scalar='salinity',
+    #                               cache_dir='cache', model=model)],
+    #      station_name='Sac R. at Decker Island'),
+    # Decker Island no longer in model domain
+    # dict(sources=[hm.NwisStageBC(name='SDI', station=11455478,
+    #                              cache_dir='cache', model=model)],
+    #      station_name='Sac R. at Decker Island'),
     dict(sources=[hm.NwisStageBC(name='SRV',station=11455420,
                                  cache_dir='cache',model=model)],
          station_name='Rio Vista'),
@@ -75,14 +79,14 @@ plot_defs=[
     dict(sources=[hm.NwisStageBC(name='SG1',station=11455276,
                                  cache_dir='cache',model=model)],
          station_name='Shag, near Courtland'),
-    dict(sources=[hm.NwisFlowBC(name='SHAG',station=11455276,
+    dict(sources=[hm.NwisFlowBC(name='SG1',station=11455276,
                                 cache_dir='cache',model=model)],
          station_name='Shag, near Courtland'),
 
     # These just have BGC parameters-- 
-    dict(sources=[hm.NwisScalarBC(name='DWSCTL',station=11455142, scalar='salinity',
-                                  cache_dir='cache',model=model)],
-         station_name="DWS, Courtland"),
+    # dict(sources=[hm.NwisScalarBC(name='DWSCTL',station=11455142, scalar='salinity',
+    #                               cache_dir='cache',model=model)],
+    #      station_name="DWS, Courtland"),
     # dict(sources=[hm.NwisFlowBC(name='DWSCTL',station=11455142,
     #                             cache_dir='cache',model=model)],
     #      station_name="DWS, Courtland"),
@@ -99,7 +103,13 @@ defaults=dict( zoom_period=[model.run_stop-np.timedelta64(5,'D'),
                             model.run_stop],
                models=[model] )
 
-fig_dir=os.path.join(os.path.dirname(model.his_output()),"figs-20200718")
+# also update because run didn't finish
+# defaults=dict( zoom_period=[model_period[1]-np.timedelta64(5,'D'),
+#                             model_period[1]],
+#                models=[model] )
+
+
+fig_dir=os.path.join(os.path.dirname(model.his_output()),"cal_figs")
 os.path.exists(fig_dir) or os.mkdir(fig_dir)
 
 force=True
@@ -146,10 +156,12 @@ for plot_def in plot_defs:
 
     # this really should be automatic, but RRuleLocator does some weird stuff
     # with months.
-    fig.axes[0].xaxis.set_major_locator(ticker.MultipleLocator(3))
-    fig.axes[1].xaxis.set_major_locator(ticker.MultipleLocator(7))
+    fig.axes[0].xaxis.set_major_locator(ticker.MultipleLocator(1))
+    fig.axes[1].xaxis.set_major_locator(mdates.DayLocator(bymonthday=[1, 15]))
+    fig.axes[1].tick_params(axis='x', labelrotation=-15)
     fig.subplots_adjust(wspace=0.35)
     fig.set_size_inches(10, 8)
     fig.savefig(img_fn,dpi=200, bbox_inches='tight')
+    print(img_fn)
 
-
+plt.show()
