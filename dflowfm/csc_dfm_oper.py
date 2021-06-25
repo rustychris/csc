@@ -51,9 +51,13 @@ class CscDeckerModel(dfm.DFlowModel):
     z_datum='NAVD88' # not really used right now.
     projection='EPSG:26910'
     # Forcing data is fetched as UTC, and adjusted according to this offset
-    utc_offset=np.timedelta64(-8,'h') # PST.  
+    utc_offset=np.timedelta64(-8,'h') # PST.
 
     src_grid_fn=os.path.join(here,'../grid/CacheSloughComplex_v111-edit21.nc')
+
+    salinity = False
+    wind = False
+    delwaq = True
 
     def load_default_mdu(self):
         self.load_mdu('template.mdu')
@@ -63,11 +67,15 @@ class CscDeckerModel(dfm.DFlowModel):
 
     @property
     def tidal_bc_location(self):
+        # just use rio vista because decker data got pulled from USGS site
+        """
         if self.run_start < np.datetime64("2016-05-01"):
             return 'riovista'
         else:
             return 'decker'
-    
+        """
+        return 'riovista'
+
     def get_grid(self):
         """ 
         Get a grid with bathy. Depends on run_start in order to choose
@@ -92,7 +100,7 @@ class CscDeckerModel(dfm.DFlowModel):
 
         if self.tidal_bc_location=='riovista':
             # truncate domain:
-            srv_line=model.get_geometry(name='SRV',geom_type='LineString')
+            srv_line=self.get_geometry(name='SRV',geom_type='LineString')
             to_keep=g.select_cells_by_cut(srv_line)
             for c in np.nonzero(~to_keep)[0]:
                 g.delete_cell(c)
@@ -111,11 +119,13 @@ class CscDeckerModel(dfm.DFlowModel):
 
         if self.tidal_bc_location=='decker':
             # Decker only exists post-2015
-            self.add_bcs(hm.NwisStageBC(name='decker',station=11455478,cache_dir=self.cache_dir,
-                                        filters=[hm.Lowpass(cutoff_hours=1.0)]))
+            tidal_bc = hm.NwisTidalBC(name='decker',station=11455478,cache_dir=self.cache_dir,
+                                      filters=[hm.Lowpass(cutoff_hours=1.0)])
+            self.add_bcs(tidal_bc)
         elif self.tidal_bc_location=='riovista':
-            self.add_bcs(hm.NwisStageBC(name='SRV',station=11455420,cache_dir=self.cache_dir,
-                                        filters=[hm.Lowpass(cutoff_hours=1.0)]))
+            tidal_bc = hm.NwisTidalBC(name='SRV',station=11455420,cache_dir=self.cache_dir,
+                                      filters=[hm.Lowpass(cutoff_hours=1.0)])
+            self.add_bcs(tidal_bc)
         else:
             raise Exception("Bad value for tidal_bc_location: %s"%self.tidal_bc_location)
 
@@ -190,14 +200,23 @@ class CscDeckerModel(dfm.DFlowModel):
         campbell_ds=pad_with_zero(campbell_ds)
         self.add_bcs(hm.FlowBC(name='CAMPBELL',flow=campbell_ds.flow,dredge_depth=dredge_depth))
 
-        if 0: # not including wind right now
+        if self.wind: # not including wind right now
             # Try file pass through for forcing data:
             windxy=self.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
             windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
             self.add_WindBC(wind=windxy['wind_xy'])
 
+        if self.salinity:
+             self.add_bcs(hm.NwisScalarBC(station=decker.station, parent=decker, scalar='salinity'))
+
         self.setup_roughness()
-        
+
+        if self.delwaq:
+            self.setup_delwaq()
+            # advect zero-order nitrate production coefficient from Sac River
+            self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
+            # self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='RcNit', value=1))
+
     def setup_roughness(self):
         # Roughness 
         if 1:
@@ -222,6 +241,25 @@ class CscDeckerModel(dfm.DFlowModel):
             da.attrs['long_name']='Manning n'
             rough_bc=hm.RoughnessBC(data_array=da)
             self.add_bcs(rough_bc)
+
+    def setup_delwaq(self):
+        """
+        Set up Delwaq model to run with Dflow. Currently used to calculate age of water using nitrification process
+        """
+        waq_model = dfm.WaqModel(self)
+        zero_order=True
+        if zero_order:
+            waq_model.add_substance(name='NO3', active=True)
+            waq_model.add_substance(name='ZNit', active=True)
+            waq_model.add_param(name='NH4', value=0)  # need NH4 initialized for Nitrification, even if not using
+        else:
+            waq_model.add_substance(name='NO3', active=True)
+            waq_model.add_substance(name='RcNit', active=True)
+            waq_model.add_param(name='TcNit', value=1)  # no temp. dependence
+            waq_model.add_param(name='NH4', value=1)  # inexhaustible constant ammonium supply
+        waq_model.add_process(name='Nitrif_NH4')  # by default, nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)
+
+        waq_model.write_waq()
 
     def setup_structures(self):
         # Culvert at CCS
@@ -353,7 +391,7 @@ if __name__=='__main__':
         # Go ahead and get the restart time, so that intervals and directory names
         # can be chosen below
         last_run_dir=args.resume
-        last_model=drv.SuntansModel.load(last_run_dir)
+        last_model=dfm.DFlowModel.load(last_run_dir)
         multi_run_start=last_model.restartable_time()
         print("Will resume run in %s from %s"%(last_run_dir,multi_run_start))
     else:
@@ -416,7 +454,7 @@ if __name__=='__main__':
             if args.no_run:
                 print("No run - dropping out of loop")
                 break
-            model.run_model()
+            model.run_model(extra_args=['--processlibrary', dfm.DFlowModel.waq_proc_def])
             if not model.is_completed():
                 log.error("Breaking out of loop -- run %s did not complete"%run_dir)
                 break
