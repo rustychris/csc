@@ -8,7 +8,7 @@
 
 # there is no -n option given in this script!
 # specify -n <num cores> on the command line to sbatch.
-DFMROOT=/home/rustyh/src/dfm/delft3dfm_2021.01/lnx64
+DFMROOT=/home/rustyh/src/dfm/delft3dfm_2021.03/lnx64
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DFMROOT/lib
 
 echo 'working directory:'

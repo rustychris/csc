@@ -55,26 +55,18 @@ class CscDeckerModel(dfm.DFlowModel):
 
     src_grid_fn=os.path.join(here,'../grid/CacheSloughComplex_v111-edit21.nc')
 
+    # just use rio vista because decker data got pulled from USGS site
+    tidal_bc_location='riovista'
+
     salinity = False
     wind = False
-    delwaq = True
+    dwaq = True
 
     def load_default_mdu(self):
         self.load_mdu('template.mdu')
         
     def ccs_pre_restoration(self):
         return self.run_start < np.datetime64("2014-11-01")
-
-    @property
-    def tidal_bc_location(self):
-        # just use rio vista because decker data got pulled from USGS site
-        """
-        if self.run_start < np.datetime64("2016-05-01"):
-            return 'riovista'
-        else:
-            return 'decker'
-        """
-        return 'riovista'
 
     def get_grid(self):
         """ 
@@ -119,15 +111,18 @@ class CscDeckerModel(dfm.DFlowModel):
 
         if self.tidal_bc_location=='decker':
             # Decker only exists post-2015
-            tidal_bc = hm.NwisTidalBC(name='decker',station=11455478,cache_dir=self.cache_dir,
-                                      filters=[hm.Lowpass(cutoff_hours=1.0)])
-            self.add_bcs(tidal_bc)
+            tide_name='decker'
+            tide_station=11455478
         elif self.tidal_bc_location=='riovista':
-            tidal_bc = hm.NwisTidalBC(name='SRV',station=11455420,cache_dir=self.cache_dir,
-                                      filters=[hm.Lowpass(cutoff_hours=1.0)])
-            self.add_bcs(tidal_bc)
+            tide_name='SRV'
+            tide_station=11455420
         else:
             raise Exception("Bad value for tidal_bc_location: %s"%self.tidal_bc_location)
+        
+        tidal_bc = hm.NwisStageBC(name=tide_name,station=tide_station,cache_dir=self.cache_dir,
+                                  filters=[hm.FillTidal(),
+                                           hm.Lowpass(cutoff_hours=1.0)])
+        self.add_bcs(tidal_bc)
 
         if self.tidal_bc_location=='decker':
             # unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
@@ -211,11 +206,11 @@ class CscDeckerModel(dfm.DFlowModel):
 
         self.setup_roughness()
 
-        if self.delwaq:
+        if self.dwaq:
             self.setup_delwaq()
             # advect zero-order nitrate production coefficient from Sac River
-            self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
-            # self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='RcNit', value=1))
+            # self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
+            self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='RcNit', value=1))
 
     def setup_roughness(self):
         # Roughness 
@@ -246,20 +241,11 @@ class CscDeckerModel(dfm.DFlowModel):
         """
         Set up Delwaq model to run with Dflow. Currently used to calculate age of water using nitrification process
         """
-        waq_model = dfm.WaqModel(self)
-        zero_order=True
-        if zero_order:
-            waq_model.add_substance(name='NO3', active=True)
-            waq_model.add_substance(name='ZNit', active=True)
-            waq_model.add_param(name='NH4', value=0)  # need NH4 initialized for Nitrification, even if not using
-        else:
-            waq_model.add_substance(name='NO3', active=True)
-            waq_model.add_substance(name='RcNit', active=True)
-            waq_model.add_param(name='TcNit', value=1)  # no temp. dependence
-            waq_model.add_param(name='NH4', value=1)  # inexhaustible constant ammonium supply
-        waq_model.add_process(name='Nitrif_NH4')  # by default, nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)
-
-        waq_model.write_waq()
+        self.dwaq.substances['NO3']=self.dwaq.Sub(initial=0.0)
+        self.dwaq.substances['RcNit']=self.dwaq.Sub(initial=0.0)
+        self.dwaq.parameters['TcNit']=1  # no temp. dependence
+        self.dwaq.parameters['NH4']=1 # inexhaustible constant ammonium supply
+        self.dwaq.add_process(name='Nitrif_NH4')  # by default, nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)
 
     def setup_structures(self):
         # Culvert at CCS
