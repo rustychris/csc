@@ -12,3 +12,4 @@ CacheSloughComplex_v110-bathy.nc
 *~
 .ipynb_checkpoints
 local_config.py
+slurm*
