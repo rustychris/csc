@@ -10,6 +10,8 @@
 
 # srun --mpi=pmi2 $DFMROOT/bin/dflowfm --autostartstop -t 1 flowfm.mdu --processlibrary $DFMROOT/share/delft3d/proc_def.def
 conda activate general
+
+export LD_LIBRARY_PATH=/home/rustyh/src/dfm/delft3dfm_2021.03/lnx64/lib
 python csc_age_2014.py
 
 

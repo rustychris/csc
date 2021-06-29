@@ -331,7 +331,7 @@ class CscDeckerModel(dfm.DFlowModel):
             script=None
         if script:
             shutil.copyfile(script,
-                            os.path.join( os.path.join(model.run_dir,
+                            os.path.join( os.path.join(self.run_dir,
                                                        os.path.basename(script) ) ))
         
     def write_bc_plots(self):
