@@ -58,9 +58,14 @@ class CscDeckerModel(dfm.DFlowModel):
     # just use rio vista because decker data got pulled from USGS site
     tidal_bc_location='riovista'
 
+
     salinity = False
     wind = False
     dwaq = True
+    dcd = True
+    # DCD nodes are matched to deep grid cells within this distance, otherwise
+    # assumed to fall outside domain.
+    dcd_node_tol=400 # (m) 500 includes one bad node at the DCC.  400 is good for the current grid.
 
     def load_default_mdu(self):
         self.load_mdu('template.mdu')
@@ -212,6 +217,58 @@ class CscDeckerModel(dfm.DFlowModel):
             # self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
             self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='RcNit', value=1))
 
+        if self.dcd:
+            self.setup_dcd()
+
+    def setup_dcd(self):
+        dcd_fn=os.path.join(here,"../bcs/dcd/dcd-1922_2016.nc")
+        if not os.path.exists(dcd_fn):
+            raise Exception("DCD is enabled, but did not find data file %s"%dcd_fn)
+        ds=xr.open_dataset(dcd_fn)
+
+        # Subset around the time of the simulaiton
+        pad=np.timedelta64(10,'D')
+        start_i,stop_i=np.searchsorted(ds.time, [self.run_start-pad,self.run_stop+pad])
+        ds=ds.isel(time=slice(start_i,stop_i))
+        
+        valid_dcd_nodes=( (np.isfinite(ds.seep_flow).any(dim='time')).values |
+                          (np.isfinite(ds.drain_flow).any(dim='time')).values |
+                          (np.isfinite(ds.div_flow).any(dim='time')).values )
+        # Index array with nodes having valid data
+        valid_dcd_nodes=np.nonzero(valid_dcd_nodes)[0]
+
+        pairs=[]
+        bad_pairs=[] # for debugging, keep track of the nodes that fall outside the domain, too
+        z_cell=self.grid.interp_node_to_cell(self.grid.nodes['node_z_bed'])
+
+        cc=self.grid.cells_center()
+
+        for n in valid_dcd_nodes:
+            dsm_x=np.r_[ ds.node_x.values[n], ds.node_y.values[n]]
+            c_near=self.grid.select_cells_nearest(dsm_x)
+
+            # And then find the deepest cell nearby, subject
+            # to distance from DSM point
+            c_nbrs=[c_near]
+            for _ in range(5):
+                c_nbrs=np.unique([ nbr
+                                   for c in c_nbrs
+                                   for nbr in self.grid.cell_to_cells(c)
+                                   if nbr>=0 and utils.dist(dsm_x,cc[nbr])<self.dcd_node_tol])
+            if len(c_nbrs)==0:
+                bad_pairs.append( [n, dsm_x, cc[c_near]] )
+            else:
+                match=c_nbrs[ np.argmin(z_cell[c_nbrs]) ]
+                pairs.append( [n, dsm_x, cc[match]] )
+                
+        # For each good matchup, add a source/sink.
+        for n,dsm_x,dfm_x in pairs:
+            # positive into the domain
+            Q=ds['drain_flow'].isel(node=n) - ds['seep_flow'].isel(node=n) - ds['div_flow']
+            assert np.all(np.isfinite(Q)),"Need to fill some nans, I guess"
+            bc=hm.SourceSinkBC(name="DCD%04d"%n,flow=Q,geom=dfm_x)
+            self.add_bcs([bc])
+        
     def setup_roughness(self):
         # Roughness 
         if 1:

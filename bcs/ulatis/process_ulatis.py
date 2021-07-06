@@ -46,9 +46,8 @@ campbell_lake=pd.read_excel(os.path.join("scwa-nonpublic","N20.Stage-Flow Data.C
                             names=['time','stage_ft','flow_cfs'])
 print(campbell_lake.head())
 
-                           
-##
 
+## 
 ulatis_ds=xr.Dataset.from_dataframe(ulatis_hwy113.set_index('time'))
 ulatis_ds['flow_cfs'].attrs['description']="Flow from Hwy 113 stage rating curve, with nominal 5 cfs when check dams in place"
 ulatis_ds.to_netcdf('ulatis_hwy113.nc')
