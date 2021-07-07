@@ -46,7 +46,7 @@ except NameError:
     here="."
     log.info("Assuming script is in %s"%here)
 
-class CscDeckerModel(dfm.DFlowModel):
+class CscDeckerModel(local_config.LocalConfig,dfm.DFlowModel):
     cache_dir='cache'
     z_datum='NAVD88' # not really used right now.
     projection='EPSG:26910'
@@ -57,7 +57,6 @@ class CscDeckerModel(dfm.DFlowModel):
 
     # just use rio vista because decker data got pulled from USGS site
     tidal_bc_location='riovista'
-
 
     salinity = False
     wind = False
@@ -110,10 +109,13 @@ class CscDeckerModel(dfm.DFlowModel):
     def setup_bcs(self):
         dredge_depth=-1
 
+        nonsac_bcs=[]
+        
         # check_bspp.py has the code that converted original tim to csv.
         barker=barker_data.BarkerPumpsBC(name='Barker_Pumping_Plant',dredge_depth=dredge_depth)
         self.add_bcs(barker)
-
+        nonsac_bcs.append(barker)
+        
         if self.tidal_bc_location=='decker':
             # Decker only exists post-2015
             tide_name='decker'
@@ -124,10 +126,9 @@ class CscDeckerModel(dfm.DFlowModel):
         else:
             raise Exception("Bad value for tidal_bc_location: %s"%self.tidal_bc_location)
         
-        tidal_bc = hm.NwisStageBC(name=tide_name,station=tide_station,cache_dir=self.cache_dir,
-                                  filters=[hm.FillTidal(),
-                                           hm.Lowpass(cutoff_hours=1.0)])
-        self.add_bcs(tidal_bc)
+        tidal_bcs = [hm.NwisStageBC(name=tide_name,station=tide_station,cache_dir=self.cache_dir,
+                                    filters=[hm.FillTidal(),
+                                             hm.Lowpass(cutoff_hours=1.0)]) ]
 
         if self.tidal_bc_location=='decker':
             # unclear whether threemile should also be flipped.  mean flows typically Sac->SJ,
@@ -135,22 +136,36 @@ class CscDeckerModel(dfm.DFlowModel):
             # correct.
             # flipping this did improve a lot of phases, but stage at TSL is much worse, and
             # my best reading of the metadata is that it should not be flipped.
-            self.add_bcs(hm.NwisFlowBC(name='threemile',station=11337080,cache_dir=self.cache_dir,
-                                       dredge_depth=dredge_depth,
-                                       filters=[hm.Lowpass(cutoff_hours=1.0)]))
+            tidal_bcs.append( hm.NwisFlowBC(name='threemile',station=11337080,cache_dir=self.cache_dir,
+                                            dredge_depth=dredge_depth,
+                                            filters=[hm.Lowpass(cutoff_hours=1.0)]) )
+        self.add_bcs(tidal_bcs)
 
         # GSS: from compare_flows and lit, must be flipped.
-        self.add_bcs(hm.NwisFlowBC(name='Georgiana',station=11447903,cache_dir=self.cache_dir,
-                                   dredge_depth=dredge_depth,
-                                   filters=[hm.Transform(lambda x: -x),
-                                            hm.Lowpass(cutoff_hours=1.0)] ))
+        nonsac=[ hm.NwisFlowBC(name='Georgiana',station=11447903,cache_dir=self.cache_dir,
+                               dredge_depth=dredge_depth,
+                               filters=[hm.Transform(lambda x: -x),
+                                        hm.Lowpass(cutoff_hours=1.0)] ),
+                 hm.NwisFlowBC(name='dcc',station=11336600,cache_dir=self.cache_dir,
+                               default=0.0,dredge_depth=dredge_depth,
+                               filters=[hm.FillGaps(large_gap_value=0.0),
+                                        hm.Lowpass(cutoff_hours=1.0),
+                                        hm.Transform(lambda x: -x)] ),
+                 hm.FlowBC(name='ULATIS',flow=self.ulatis_flow(),dredge_depth=dredge_depth),
+                 hm.FlowBC(name='CAMPBELL',flow=self.campbell_lake_flow(),dredge_depth=dredge_depth) ]
 
-        self.add_bcs(hm.NwisFlowBC(name='dcc',station=11336600,cache_dir=self.cache_dir,
-                                   default=0.0,dredge_depth=dredge_depth,
-                                   filters=[hm.FillGaps(large_gap_value=0.0),
-                                            hm.Lowpass(cutoff_hours=1.0),
-                                            hm.Transform(lambda x: -x)] ) )
+        if 1:
+            lisbon_bc=hm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'),
+                                    default=0.0,cache_dir=self.cache_dir,
+                                    dredge_depth=dredge_depth,
+                                    filters=[hm.FillGaps(),
+                                             hm.Lowpass(cutoff_hours=1.0)])
+            nonsac.append(lisbon_bc)
+        else:
+            log.warning("TEMPORARILY Disabling Lisbon flow due to CDEC issues")
 
+        self.add_bcs(nonsac)
+        
         # moving Sac flows upstream and removing tides.
         sac=hm.NwisFlowBC(name="SacramentoRiver",station=11447650,
                           pad=np.timedelta64(5,'D'),cache_dir=self.cache_dir,
@@ -159,57 +174,19 @@ class CscDeckerModel(dfm.DFlowModel):
                                    hm.Lag(np.timedelta64(-2*3600,'s'))])
         self.add_bcs(sac)
 
-        if 1:
-            lisbon_bc=hm.CdecFlowBC(name='lis',station="LIS",pad=np.timedelta64(5,'D'),
-                                    default=0.0,cache_dir=self.cache_dir,
-                                    dredge_depth=dredge_depth,
-                                    filters=[hm.FillGaps(),
-                                             hm.Lowpass(cutoff_hours=1.0)])
-            self.add_bcs(lisbon_bc)
-        else:
-            log.warning("TEMPORARILY Disabling Lisbon flow due to CDEC issues")
-
-        # Ulatis inflow
-        # There are probably timezone issues here - they are coming in PST, but
-        # this code probably assumes UTC.
-        ulatis_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/ulatis_hwy113.nc"))
-        ulatis_ds['flow']=ulatis_ds.flow_cfs*0.02832
-        ulatis_ds['flow'].attrs['units']='m3 s-1'
-
-        def pad_with_zero(ds,pad=np.timedelta64(1,'D')):
-        # if ( (self.run_start>=ulatis_ds.time.min()) and
-            if self.run_stop+pad>ds.time[-1]:
-                log.warning("Will extend flow with 0 flow! (data end %s)"%(ds.time.values[-1]))
-                # with xarray, easier to just overwrite the last sample.  lazy lazy.
-                ds.time.values[-1] = self.run_stop+pad
-                ds.flow.values[-1] = 0.0
-            if self.run_start-pad<ds.time[0]:
-                log.warning("Will prepend flow with 0 flow! (data starts %s)"%(ds.time.values[0]))
-                # with xarray, easier to just overwrite the last sample.  lazy lazy.
-                ds.time.values[0] = self.run_start - pad
-                ds.flow.values[0] = 0.0
-            return ds
-
-        ulatis_ds=pad_with_zero(ulatis_ds)
-        self.add_bcs(hm.FlowBC(name='ULATIS',flow=ulatis_ds.flow,dredge_depth=dredge_depth))
-
-        # Campbell Lake
-        campbell_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/campbell_lake.nc"))
-        campbell_ds['flow']=campbell_ds.flow_cfs*0.02832
-        campbell_ds['flow'].attrs['units']='m3 s-1'
-        campbell_ds=pad_with_zero(campbell_ds)
-        self.add_bcs(hm.FlowBC(name='CAMPBELL',flow=campbell_ds.flow,dredge_depth=dredge_depth))
-
         if self.wind: # not including wind right now
             # Try file pass through for forcing data:
             windxy=self.read_tim('forcing-data/windxy.tim',columns=['wind_x','wind_y'])
             windxy['wind_xy']=('time','xy'),np.c_[ windxy['wind_x'].values, windxy['wind_y'].values]
             self.add_WindBC(wind=windxy['wind_xy'])
 
-        if self.salinity:
-             self.add_bcs(hm.NwisScalarBC(station=decker.station, parent=decker, scalar='salinity'))
-
         self.setup_roughness()
+
+
+        if self.salinity:
+            for tbc in tidal_bcs:
+                # May not work with Threemile, originally just used Decker.
+                self.add_bcs(hm.NwisScalarBC(station=tbc.station, parent=tbc, scalar='salinity'))
 
         if self.dwaq:
             self.setup_delwaq()
@@ -217,19 +194,63 @@ class CscDeckerModel(dfm.DFlowModel):
             # self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='ZNit', value=1))
             self.add_bcs(dfm.DelwaqScalarBC(parent=sac, scalar='RcNit', value=1))
 
+            sea_bcs=[dfm.DelwaqScalarBC(scalar='sea',parent=bc,value=1.0)
+                     for bc in tidal_bcs]
+            self.add_bcs(sea_bcs)
+
+            nonsac_bcs=[dfm.DelwaqScalarBC(scalar='nonsac',parent=bc,value=1.0)
+                        for bc in nonsac]
+            self.add_bcs(nonsac_bcs)
+
         if self.dcd:
             self.setup_dcd()
+    
+    def campbell_lake_flow(self):
+        # Campbell Lake
+        campbell_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/campbell_lake.nc"))
+        campbell_ds['flow']=campbell_ds.flow_cfs*0.02832
+        campbell_ds['flow'].attrs['units']='m3 s-1'
+        campbell_ds=self.pad_with_zero(campbell_ds)
+        return campbell_ds.flow
+            
+    def ulatis_flow(self):
+        # Ulatis inflow
+        # There are probably timezone issues here - they are coming in PST, but
+        # this code probably assumes UTC.
+        ulatis_ds=xr.open_dataset(os.path.join(here,"../bcs/ulatis/ulatis_hwy113.nc"))
+        ulatis_ds['flow']=ulatis_ds.flow_cfs*0.02832
+        ulatis_ds['flow'].attrs['units']='m3 s-1'
 
+        ulatis_ds=self.pad_with_zero(ulatis_ds)
+        return ulatis_ds.flow
+
+    def pad_with_zero(self,ds,var='flow',pad=np.timedelta64(1,'D')):
+        """
+        Extend time to the padded extent of hte run, and extend the given variable with 
+        zeros. Modifies ds in place! Lazy code!
+        """
+        if self.run_stop+pad>ds.time[-1]:
+            log.warning("Will extend flow with 0 flow! (data end %s)"%(ds.time.values[-1]))
+            # with xarray, easier to just overwrite the last sample.  lazy lazy.
+            ds.time.values[-1] = self.run_stop+pad
+            ds[var].values[-1] = 0.0
+        if self.run_start-pad<ds.time[0]:
+            log.warning("Will prepend flow with 0 flow! (data starts %s)"%(ds.time.values[0]))
+            # with xarray, easier to just overwrite the last sample.  lazy lazy.
+            ds.time.values[0] = self.run_start - pad
+            ds[var].values[0] = 0.0
+        return ds
+    
     def setup_dcd(self):
         dcd_fn=os.path.join(here,"../bcs/dcd/dcd-1922_2016.nc")
         if not os.path.exists(dcd_fn):
             raise Exception("DCD is enabled, but did not find data file %s"%dcd_fn)
-        ds=xr.open_dataset(dcd_fn)
+        ds_full=xr.open_dataset(dcd_fn)
 
         # Subset around the time of the simulaiton
         pad=np.timedelta64(10,'D')
-        start_i,stop_i=np.searchsorted(ds.time, [self.run_start-pad,self.run_stop+pad])
-        ds=ds.isel(time=slice(start_i,stop_i))
+        start_i,stop_i=np.searchsorted(ds_full.time, [self.run_start-pad,self.run_stop+pad])
+        ds=ds_full.isel(time=slice(start_i,stop_i))
         
         valid_dcd_nodes=( (np.isfinite(ds.seep_flow).any(dim='time')).values |
                           (np.isfinite(ds.drain_flow).any(dim='time')).values |
@@ -274,6 +295,8 @@ class CscDeckerModel(dfm.DFlowModel):
                 pdb.set_trace()
             bc=hm.SourceSinkBC(name="DCD%04d"%n,flow=Q,geom=dfm_x)
             self.add_bcs([bc])
+            if self.dwaq:
+                self.add_bcs(dfm.DelwaqScalarBC(parent=bc,scalar='drain',value=1.0))
         
     def setup_roughness(self):
         # Roughness 
@@ -306,6 +329,11 @@ class CscDeckerModel(dfm.DFlowModel):
         """
         self.dwaq.substances['NO3']=self.dwaq.Sub(initial=0.0)
         self.dwaq.substances['RcNit']=self.dwaq.Sub(initial=0.0)
+        if self.dcd:
+            self.dwaq.substances['drain']=self.dwaq.Sub(initial=0.0) # Tag for Ag returns
+        self.dwaq.substances['nonsac']=self.dwaq.Sub(initial=0.0) # Tag for non-Sac returns
+        self.dwaq.substances['sea']=self.dwaq.Sub(initial=0.0) # Tag for water coming from seaward BCs
+        
         self.dwaq.parameters['TcNit']=1  # no temp. dependence
         self.dwaq.parameters['NH4']=1 # inexhaustible constant ammonium supply
         self.dwaq.add_process(name='Nitrif_NH4')  # by default, nitrification process uses pragmatic kinetics forumulation (SWVnNit = 0)

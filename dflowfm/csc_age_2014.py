@@ -1,7 +1,19 @@
+import stompy.model.delft.waq_scenario as dwaq
+import stompy.model.delft.dflow_model as dfm
+import stompy.model.hydro_model as hm
+
 import csc_dfm_oper
+import barker_data
 import numpy as np
 import os, shutil
+import six
 
+six.moves.reload_module(hm)
+six.moves.reload_module(dfm)
+six.moves.reload_module(dwaq)
+six.moves.reload_module(barker_data)
+six.moves.reload_module(csc_dfm_oper)
+    
 target_date=np.datetime64("2014-10-01")
 spinup=np.timedelta64(150,'D')
 post  =np.timedelta64(1,'D')
