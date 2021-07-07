@@ -264,8 +264,14 @@ class CscDeckerModel(dfm.DFlowModel):
         # For each good matchup, add a source/sink.
         for n,dsm_x,dfm_x in pairs:
             # positive into the domain
-            Q=ds['drain_flow'].isel(node=n) - ds['seep_flow'].isel(node=n) - ds['div_flow']
-            assert np.all(np.isfinite(Q)),"Need to fill some nans, I guess"
+            Q=(   ds['drain_flow'].isel(node=n)
+                - ds['seep_flow'].isel(node=n)
+                - ds['div_flow'].isel(node=n)
+            )
+            
+            if not np.all(np.isfinite(Q)): # ,"Need to fill some nans, I guess":
+                import pdb
+                pdb.set_trace()
             bc=hm.SourceSinkBC(name="DCD%04d"%n,flow=Q,geom=dfm_x)
             self.add_bcs([bc])
         
