@@ -26,14 +26,20 @@ mpi_args=["-localonly"]
 # other defaults for local machine
 num_procs=16
 
+# use to install these values directly into dfm.DFlowModel
+# refactor puts the settings into LocalConfig for cleaner
+# reloading and subclassing.
+
 # Copy the settings to the DFlowModel base class. 
 # Note that if dfm is reloaded, you'll have to reload
 # local_config, too, to get these settings
-import stompy.model.delft.dflow_model as dfm
-dfm.DFlowModel.dfm_bin_dir=dfm_bin_dir
-dfm.DFlowModel.mpi_bin_dir="/usr/bin"
-dfm.DFlowModel.mpi_bin_exe="mpiexec.mpich"
-dfm.DFlowModel.num_procs=num_procs
-dfm.DFlowModel.dfm_bin_exe="dflowfm-cli.exe"
-dfm.DFlowModel.mpi_args=('-localonly',)
+class LocalConfig(object):
+    dfm_bin_dir=dfm_bin_dir
+    # These seem suspicious for a Windows run. Probably need to correct these, or just
+    # run openmp instead of MPI
+    # mpi_bin_dir="/usr/bin"
+    mpi_bin_exe="mpiexec.mpich"
+    num_procs=num_procs
+    dfm_bin_exe="dflowfm-cli.exe"
+    mpi_args=('-localonly',)
 
